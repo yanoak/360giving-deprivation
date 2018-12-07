@@ -1,14 +1,19 @@
 {
   "name": "basic",
   "version": "0.0.0",
+  "homepage": "https://yanoak.github.io/360giving-deprivation/",
   "scripts": {
-    "start": "react-scripts start"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "react-scripts": "^1.0.10"
   },
   "dependencies": {
     "d3": "^5.7.0",
+    "gh-pages": "^2.0.1",
     "mapbox-gl": "^0.39.1",
     "react": "^15.5.0",
     "react-dom": "^15.5.0"
