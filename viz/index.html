@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans|PT+Sans|Roboto" rel="stylesheet">
+<style>
+
+/* ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3'] */
+
+body {
+  background-color: #ECE7DD;
+}
+
+.person:hover {
+  color: #CF232B;
+  cursor: default;
+}
+  
+.personDetail {
+  display: none;
+  text-align: left;
+}  
+  
+.name {
+  font-weight:bold;
+  display: inline;
+  text-align: left;
+}  
+  
+.value {
+  display: inline;
+  text-align: left;
+} 
+  
+
+.sr {
+  fill: none;
+  stroke: #bbb;
+  stroke-width: 1.5;
+}
+  
+.tsp, .amyotha {
+  fill: #ECE7DD;
+  stroke: #eee;
+  stroke-width: 0;
+} 
+  
+.tspInset, .amyothaInset {
+  fill: #ECE7DD;
+  stroke: #bbb;
+  stroke-width: 1;
+}   
+  
+.vt {
+  fill: none;
+  stroke: #80b1d3;
+  stroke-width: 1;
+} 
+  
+.selectable {
+  stroke: #CF232B;
+  stroke-width: 1;
+}
+
+  
+.tooltip  {
+/*	position: absolute;*/
+	top: 3000px;
+	left: 100px;
+  -moz-border-radius:5px;
+	border-radius: 5px;
+  border: 2px solid #000;
+	/* background: #222222; */
+  background: #ECE7DD;
+	opacity: .9;
+	/* color: #eeeeee; */
+  color: black;
+	padding: 10px;
+	width: 200px;
+	font-size: 12px;
+	z-index: 1000;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;     
+}
+
+.tooltip .title {
+	font-size: 13px;
+}
+
+.tooltip .name {
+  font-weight:bold;
+}
+  
+.counties {
+  fill: none;
+}
+
+.districts {
+  fill: none;
+  fill-opacity: 1;
+  stroke: #fff;
+  stroke-linejoin: round;
+  stroke-width: 1px;
+}
+  
+.fade {
+  fill-opacity: 0.2;
+}
+  
+
+
+  
+/*
+.sr.Ayeyarwady { fill: #8dd3c7; }
+.sr.Bago { fill: #ffffb3; }
+.sr.Chin { fill: #bebada; }
+.sr.Kachin { fill: #cdc; }
+.sr.Kayah { fill: #80b1d3; }
+.sr.Kayin { fill: #cdc; }
+.sr.Magway { fill: #8dd3c7; }
+.sr.Mon { fill: #bebada; }
+.sr.Rakhine { fill: #cdc; }
+.sr.Sagaing { fill: #80b1d3; }
+.sr.Shan { fill: #ffffb3; }
+.sr.Tanintharyi { fill: #8dd3c7; }
+.sr.Yangon { fill: #bebada; }
+.sr.Mandalay { fill: #cdc; }
+.sr.Naypyitaw { fill: #80b1d3; }
+*/
+  
+body {
+  font-size: 13px;
+  font-family: 'Noto Sans', sans-serif;
+  font-weight: 200;
+  text-anchor: left;
+} 
+  
+.blocktext {
+    margin-left: auto;
+    margin-right: auto;
+    width: 500px;
+}
+ 
+.button {
+    border: none;
+    background-color: #bbb;
+    color: black;
+    font-weight: 300;
+/*    padding: 15px 32px;*/
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+}
+  
+.button:focus {
+    background-color: #CF232B;  
+    color: black;
+    outline: none;
+}
+
+.button:hover {
+    background-color: #CF232B;  
+    color: black;
+}
+  
+ 
+.mapContainer {
+  stroke: #bbb;
+  fill: #ECE7DD;
+  margin: 0px;
+  stroke-width: 1;
+  shape-rendering: crisp-edges;
+}
+  
+.subunit-label {
+  fill: #999;
+/*  fill: #333;*/
+  fill-opacity: .99;
+  font-size: 10px;
+  font-family: sans-serif;
+  font-weight: 500;
+  text-anchor: middle;
+}
+  
+.place-label, .place-label-capitals {
+  fill: #777;
+/*  fill: #CF232B;*/
+/*  fill-opacity: .99;*/
+  font-size: 10px;
+  font-family: sans-serif;
+  font-weight: 500;
+  text-anchor: left;
+}
+  
+.place-label-inset {
+/*  fill: #777;*/
+  fill: #CF232B;
+/*  fill-opacity: .99;*/
+  font-size: 11px;
+  font-family: sans-serif;
+  font-weight: 700;
+  text-anchor: left;
+}
+  
+.tsp-label {
+/*  fill: #777;*/
+  fill: #222;
+/*  fill-opacity: .99;*/
+  font-size: 9px;
+  font-family: sans-serif;
+  font-weight: 300;
+  text-anchor: middle;
+}  
+  
+.vt-label {
+  fill: #777;
+/*  fill: #222;*/
+/*  fill-opacity: .99;*/
+  font-size: 8px;
+  font-family: sans-serif;
+  font-weight: 300;
+  text-anchor: middle;
+}   
+
+.hidden { display: none; }  
+  
+.annotation circle {
+  fill: none;
+  stroke: black;
+}
+
+.annotation path {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.annotation text {
+  text-shadow: -2px 0 2px #fff, 
+                0 2px 2px #fff,
+                2px 0 2px #fff, 
+                0 -2px 2px #fff;
+}  
+  
+.annotePath {
+  stroke-width: 1px;
+} 
+.annoteCircle {
+  stroke-width: 1px;
+}
+  
+.yaxis path{
+  display: none;
+}
+
+.yaxis line {
+    fill: none;
+    stroke: black;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+}
+
+.yaxis text {
+    font-size: 12px;
+    z-index: 10;
+    padding: 8px;
+}  
+  
+.legendTitle {
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+    padding: 8px;
+}
+
+.mainTitle {
+    font-size: 36px;
+    z-index: 10;
+    padding: 8px;
+    text-align: center;
+} 
+.subTitle {
+  font-size: 14px;
+/*  width: 100%;*/
+  z-index: 10;
+  padding: 8px;
+  text-align: center;
+  padding: 10px 50px;
+} 
+.subtitleMap {
+  font-size:12px;
+}  
+.buttonsCell {
+  padding: 0px 0px;
+  text-align: center;
+}
+  
+.infoCell {
+  padding: 30px 50px;
+  display: inline-block;
+  vertical-align: top;
+  width: 200px;
+  height: 500px;
+}  
+  
+#cell0 {
+  display: inline-block;
+}
+  
+#cellSittwe, #cellThandwe, #cellButhidaung {
+  font-size: 18px;
+  padding-top: 50px;
+}
+
+#legend {
+  padding-left: 0px;
+  padding-top: 0px;
+  font-size: 15px;
+  float: left;
+  display: inline-block;
+}
+  
+#legend1 {
+  padding-left: 0px;
+  padding-top: 0px;
+  padding-bottom: 50px;
+  font-size: 15px;
+  display: inline-block;
+  vertical-align: top;
+}
+  
+.locationList {
+  padding: 0px 25px;
+  font-size: 15px;
+  width: 33%;
+  vertical-align: top;
+}  
+  
+.row {
+  float:left;
+/*  width: 500px;*/
+/*  overflow: auto;*/
+/*    white-space: nowrap;*/
+}
+
+  
+.d3-tip {
+      line-height: 1;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+ 
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips specifically */
+.d3-tip.n:after {
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: 0;
+} 
+  
+.dot {
+  stroke: #000;
+}
+  
+.label {
+  fill: #000;
+}
+  
+</style>
+<body>
+
+  
+<div class="mainTitle">Is the Money Going Where it is Most Needed?
+  <br/><small>Comparing Grantmaking to English Indices of Deprivation</small></div>  
+<br/>
+  
+<h2 class="blocktext">How do we know which districts are in most need of grant money?</h2>
+<p class="blocktext">The Index of Multiple Deprivation tracks various local administration districts across 7 different themes:</p>
+<ul class="blocktext">
+  <li>Income</li>
+  <li>Employment</li>
+  <li>Education, Skills and Training</li>
+  <li>Health Deprivation and Disability</li>
+  <li>Crime</li>
+  <li>Barriers to Housing and Services</li>
+  <li>Living Environment</li>
+</ul>
+  <p class="blocktext">Based on these 7 themes, districts across the UK are given scores. Each of the countries in the UK have a different scoring system and so cross-country comparisons cannot be made, for instance between a district in Scotland and a district in England. Because of that, we choose to only look at districts in England.</p>
+
+<h2 class="blocktext">Breaking down the GrantNav data in the 7 themes</h2>
+<p class="blocktext">Using keyword seraches in the Title and Description fields on each of the 200,000+ grants on GrantNav, we can match the grant funding that is award to each theme. We then break the total amount awarded for each theme for each district in England.</p>
+
+
+<h2 class="blocktext">What do we find?</h2>
+<p class="blocktext">We visualise the data using an interactive map and scatterplot. 
+  Ideally, the scatterplot should show a positive correlation between the amount of deprivation for each district and the total amount of grant funding awarded.</p>
+  
+<p class="blocktext">In most categories, there is a positive relation, but in the themes of "Education, Skills and Training" and "Barriers to Housing and Services", we can see that some of the disticts with higher levels of deprivation are not getting higher levels of funding then the less deprived districts.</p>
+<!--<div id="#vis"></div>-->
+<!--
+<label>
+  <input type="checkbox" checked="true">
+  Hide controls
+</label> 
+-->
+<p class="blocktext"><strong>To Interact with the Visualisation:</strong></p>
+<p class="blocktext"><strong>Click on each theme and hover your mouse over the map and dots.</strong></p>
+<br/>
+<div class="buttonsCell">
+  <button id="updateButtonIncome" onclick="onButtonClick('income')" class="button" autofocus>Income</button> 
+  <button id="updateButtonEmployment" onclick="onButtonClick('employment')" class="button">Employment</button> 
+  <button id="updateButtonEducation" onclick="onButtonClick('education')" class="button">Education, Skills and Training</button>
+  <button id="updateButtonHealth" onclick="onButtonClick('health')" class="button">Health Deprivation and Disability</button> 
+  <button id="updateButtonCrime" onclick="onButtonClick('crime')"  class="button">Crime</button> 
+  <button id="updateButtonHousing" onclick="onButtonClick('housing')" class="button">Barriers to Housing and Services</button>
+  <button id="updateButtonEnvironment" onclick="onButtonClick('environment')" class="button">Living Environment</button>
+</div>
+<br/>
+<svg id="map" width='400' height='550'></svg>
+<svg id="scatter" width='700' height='550'></svg>
+  <br/>
+  <p class="blocktext">All content and code is open source under <a href="https://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons 4.0</a>. All the code is available on <a href='https://github.com/yanoak/360Giving-Challenge'>Github</a>.</p>
+  <p class="blocktext">Created by <a href="https://twitter.com/yanoak">Yan Naung Oak</a> as a entry for the <a href="https://challenge.threesixtygiving.org/">360 Giving Data Visualisation Challenge</a>.</p>
+
+<!--
+<div id="popup" class="popup-wrapper hide">
+  <div class="popup-content">
+    <div class="popup-title">
+      <button type="button" class="popup-close">&times;</button>
+      <h3>Popup Title</h3>
+    </div>
+    <div class="popup-body">
+      <p>Popup body</p>
+    </div>
+  </div>
+</div>
+-->
+  
+<!--
+<script src="scripts/d3.v3.min.js" charset="utf-8"></script>
+<script src="scripts/topojson.v1.min.js"></script>
+<script src="scripts/d3-ring-note.js"></script>
+-->
+
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/topojson.v2.min.js"></script>
+<script src="scripts/d3-tip.js"></script>
+<script>
+
+var formatRanking = d3.format(".0f");
+var formatGBP = function(d) {return "£"+d3.format(",.0f")(d);}
+
+var longThemes = {
+  'income' : 'Income',
+  'employment' : 'Employment',
+  'education' : 'Education, Skills and Training',
+  'health' : 'Health Deprivation and Disability',
+  'crime' : 'Crime',
+  'housing': 'Barriers to Housing and Services',
+  'environment' : 'Living Environment'
+}
+
+var svg = d3.select("#map"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var districtData = d3.map();
+var districtDataAll = d3.map();
+var data = [];
+var gb = {};
+//var districtData = [];
+
+var centerPoint = [-0.1278,51.5074];
+  
+var projection = d3.geoAlbers()
+//    .center([0, 55.4])
+    .center(centerPoint)
+//    .rotate([4.4, 0])
+    .rotate([2, 0])
+    .parallels([50, 60])
+    .scale(1200 * 3.5)
+    .translate([width / 2, 3*height / 5])
+//.geoMercator();
+//      .scale(10)
+//      .translate([width / 2, height / 2])
+//      .center(centerPoint);
+
+var path = d3.geoPath()
+      .projection(projection);
+
+var x = d3.scaleLinear()
+    .domain([-326/9, 326])
+    .rangeRound([550, 860]);
+
+var color = d3.scaleThreshold()
+    .domain(d3.range(0, 326, 326/8))
+    .range(d3.schemeRdYlBu[9]);
+
+var g = svg.append("g")
+    .attr("class", "key")
+    .attr("transform", "translate(" + (-width*6/5) + "," + height * 5/6 +")");
+  
+var tool_tip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([-8, 0])
+    .html(function(d) { 
+      var rank = districtData.get(d) ? districtData.get(d)[clickedTheme+'_rank'] : 'N/A';
+      var name = districtData.get(d)['Distrct Name'];
+      return name + '<br>Rank: ' + formatRanking(rank); 
+    });
+  svg.call(tool_tip);
+  
+
+
+g.selectAll("rect")
+  .data(color.range().map(function(d) {
+      d = color.invertExtent(d);
+      if (d[0] == null) d[0] = x.domain()[0];
+      if (d[1] == null) d[1] = x.domain()[1];
+      return d;
+    }))
+  .enter().append("rect")
+    .attr("height", 8)
+    .attr("x", function(d) { return x(d[0]); })
+    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+    .attr("fill", function(d) { return color(d[0]); });
+
+g.append("text")
+    .attr("class", "caption")
+    .attr("x", x.range()[0] + 22)
+    .attr("y", -6)
+    .attr("fill", "#000")
+    .attr("text-anchor", "start")
+    .attr("font-weight", "bold")
+    .text("Rank of Deprivation (Lower number means more deprived)");
+
+g.call(d3.axisBottom(x)
+    .tickSize(13)
+    .tickFormat(function(x, i) { return formatRanking(x+326/9); })
+    .tickValues(color.domain()))
+  .select(".domain")
+    .remove();
+  
+
+
+  
+/// Scatter Plot Prep ////
+
+var stdRadius = 3.5, largeRadius = 20;  
+  
+var margin = {top: 20, right: 60, bottom: 70, left: 90};
+var svg1 = d3.select("#scatter")
+  .append("g")
+    .attr("transform", "translate(" + (1.5*margin.left) + "," + margin.top + ")");
+  
+var width1 = 700 - margin.right - margin.left,
+    height1 = 550 - margin.top - margin.bottom;
+
+var x1 = d3.scaleLinear()
+    .range([0, width1]);
+
+var y1 = d3.scaleLinear()
+    .range([height1, 0]);
+
+var color1 = d3.scaleOrdinal(d3.schemeCategory10);
+
+var xAxis = d3.axisBottom(x1);
+
+var yAxis = d3.axisLeft(y1);
+
+
+var tool_tip_scatter = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([-largeRadius - 3, 0])
+    .html(function(d) { 
+      console.log(d);
+      console.log(clickedTheme);
+      var rank = districtData.get(d) ? districtData.get(d)[clickedTheme+'_rank'] : 'N/A';
+      var name = districtData.get(d)['Distrct Name'];
+      var count = districtData.get(d)['count'];
+      var awarded = districtData.get(d)['Amount Awarded'];
+      return name + '<br>Rank: ' + formatRanking(rank)
+        +'<br>Total Awarded: ' + formatGBP(awarded)
+        +'<br>Number of Grants: ' + formatRanking(count); 
+    });
+  svg1.call(tool_tip_scatter);
+
+//onButtonClick('income');    
+  
+
+
+d3.queue()
+    .defer(d3.json, "../data/topo_lad_simplified.json")
+    .defer(d3.csv, "../data/districts_data.csv", function(d) { 
+//      console.log(d);
+      districtDataAll.set(d['District Code']+"-"+d['theme'],d); 
+      districtData.set(d['District Code'],d); 
+//      districtData.push(d); 
+    })
+    .await(ready);
+  
+var clickedTheme = 'income';
+  
+function ready(error, gb) {
+  if (error) throw error;
+  
+  console.log(districtData);
+  console.log(gb);
+  
+
+  svg.append("g")
+      .attr("class", "districts")
+    .selectAll("path")
+    .data(topojson.feature(gb, gb.objects.lad).features)
+    .enter().append("path")
+      .attr("fill", function(d) { 
+        return color(d.rate = districtData.get(d.id)[clickedTheme+'_rank']); 
+      })
+      .attr("d", path)
+      .attr("class", function(d) { return d.id + " " + 'district map_district';})
+      .on('mouseenter', function(d) {
+//        console.log('mouseover');
+        d3.selectAll('.district').attr('fill-opacity',0.1);
+        d3.selectAll('.'+d.id).attr('fill-opacity',1);       
+    
+        d3.selectAll('.'+d.id+'.dot').transition()
+            .ease(d3.easePoly)
+            .duration(100)
+            .attr('r',largeRadius);  
+        tool_tip.show(d.id,document.getElementsByClassName('map_district ' +d.id)[0]);
+        tool_tip_scatter.show(d.id,document.getElementsByClassName('dot ' + d.id)[0]);
+      })
+      .on('mouseleave', function(d) {
+//        console.log('mouseout');
+        d3.selectAll('.district').attr('fill-opacity',1);
+        d3.selectAll('.dot').transition()
+            .ease(d3.easePoly)
+            .duration(100)
+            .attr('r',stdRadius);  
+        tool_tip.hide(d.id,document.getElementsByClassName('map_district ' +d.id)[0]);
+        tool_tip_scatter.hide(d.id,document.getElementsByClassName('dot ' + d.id)[0]);
+      });
+
+//  svg.append("path")
+//      .datum(topojson.mesh(gb, gb.objects.lads, function(a, b) { return a !== b; }))
+//      .attr("class", "borders")
+//      .attr("d", path);
+
+  
+  
+  //// Scatter Plot Draw ////
+  
+  data = districtDataAll.values().filter(function(d) { 
+//    console.log(d['theme']);
+    return d['theme'] == clickedTheme;
+  });
+  
+  console.log(d3.extent(data, function(d) { return +d['Amount Awarded']; }));
+  console.log(d3.extent(data, function(d) { return +d[clickedTheme+'_score']; }));
+//  districtData.forEach(function(d) {
+//    d.sepalLength = +d.sepalLength;
+//    d.sepalWidth = +d.sepalWidth;
+//  });
+
+  y1.domain(d3.extent(data, function(d) { return +d['Amount Awarded']; })).nice();
+  x1.domain(d3.extent(data, function(d) { return +d[clickedTheme+'_score']; })).nice();
+
+  svg1.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height1 + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (margin.top + 20) + ")")
+//      .attr("x", width1)
+//      .attr("y", -6)
+      .style("text-anchor", "middle")
+      .text('Depravition Score for ' + longThemes[clickedTheme] + " (Larger values means more deprivation)");
+
+  svg1.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+//      .attr("y", 6)
+//      .attr("dy", ".71em")
+//      .attr("dx", -50)
+//      .style("text-anchor", "middle")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height1 / 2))
+      .attr("dy", "1em")
+      .text("Total Value of Grants Awarded for Theme (£)");
+
+  svg1.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", function(d) {return "dot district " + d['District Code'];})
+      .attr("r", stdRadius)
+      .attr("cx", function(d) { return x1(+d[clickedTheme+'_score']); })
+      .attr("cy", function(d) { return y1(+d['Amount Awarded']); })
+      .style("fill", function(d) { return color(d[clickedTheme+'_rank']); })
+      .on('mouseenter', function(d) {
+//        console.log(d);
+        d3.selectAll('.district').attr('fill-opacity',0.1);
+        d3.selectAll('.'+d['District Code']).attr('fill-opacity',1);       
+    
+        d3.selectAll('.'+d['District Code']+'.dot').transition()
+            .ease(d3.easePoly)
+            .duration(100)
+            .attr('r',largeRadius);  
+        tool_tip.show(d['District Code'],document.getElementsByClassName('map_district ' +d['District Code'])[0]);
+        tool_tip_scatter.show(d['District Code'],document.getElementsByClassName('dot ' + d['District Code'])[0]);
+      })
+      .on('mouseleave', function(d) {
+//        console.log('mouseout');
+        d3.selectAll('.district').attr('fill-opacity',1);
+        d3.selectAll('.dot').transition()
+            .ease(d3.easePoly)
+            .duration(100)
+            .attr('r',stdRadius);  
+        tool_tip.hide(d['District Code'],document.getElementsByClassName('map_district ' +d['District Code'])[0]);
+        tool_tip_scatter.hide(d['District Code'],document.getElementsByClassName('dot ' + d['District Code'])[0]);
+      });
+
+//  var legend = svg.selectAll(".legend")
+//      .data(color.domain())
+//    .enter().append("g")
+//      .attr("class", "legend")
+//      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+//
+//  legend.append("rect")
+//      .attr("x", width - 18)
+//      .attr("width", 18)
+//      .attr("height", 18)
+//      .style("fill", color);
+//
+//  legend.append("text")
+//      .attr("x", width - 24)
+//      .attr("y", 9)
+//      .attr("dy", ".35em")
+//      .style("text-anchor", "end")
+//      .text(function(d) { return d; });
+}
+  
+function onButtonClick(themeThatWasClicked) {
+  
+    clickedTheme = themeThatWasClicked;
+//    var numValues = dataset.length;  // Get original dataset's length
+//    var maxRange = Math.random() * 1000;  // Get max range of new values
+//    data = [];  // Initialize empty array
+//    for(var i=0; i<numValues; i++) {
+//        var newNumber1 = Math.floor(Math.random() * maxRange);  // Random int for x
+//        var newNumber2 = Math.floor(Math.random() * maxRange);  // Random int for y
+//        dataset.push([newNumber1, newNumber2]);  // Add new numbers to array
+//    }
+  
+    data = districtDataAll.values().filter(function(d) { 
+  //    console.log(d['theme']);
+      return d['theme'] == clickedTheme;
+    });
+  
+    districtData = d3.map();
+    data.forEach(function(d) { 
+//      console.log(d);
+      districtData.set(d['District Code'],d); 
+    });
+  
+    svg.selectAll("path")
+      .transition().duration(500)
+      .attr("fill", function(d) { 
+//        console.log(d);
+        return color(d.rate = districtData.get(d.id) ? districtData.get(d.id)[clickedTheme+'_rank'] 
+                     : 'rgba(0,0,0,0.1)'); 
+      });
+//      .on('mouseenter', function(d) {
+////        console.log('mouseover');
+//        d3.selectAll('.district').attr('fill-opacity',0.1);
+//        d3.selectAll('.'+d.id).attr('fill-opacity',1);       
+//    
+//        d3.selectAll('.'+d.id+'.dot').transition()
+//            .ease(d3.easePoly)
+//            .duration(100)
+//            .attr('r',largeRadius);  
+//        tool_tip.show(d.id,document.getElementsByClassName('map_district ' +d.id)[0]);
+//        tool_tip_scatter.show(d.id,document.getElementsByClassName('dot ' + d.id)[0]);
+//      })
+//      .on('mouseleave', function(d) {
+////        console.log('mouseout');
+//        d3.selectAll('.district').attr('fill-opacity',1);
+//        d3.selectAll('.dot').transition()
+//            .ease(d3.easePoly)
+//            .duration(100)
+//            .attr('r',stdRadius);  
+//        tool_tip.hide(d.id,document.getElementsByClassName('map_district ' +d.id)[0]);
+//        tool_tip_scatter.hide(d.id,document.getElementsByClassName('dot ' + d.id)[0]);
+//      });
+    
+    y1.domain(d3.extent(data, function(d) { return +d['Amount Awarded']; })).nice();
+    x1.domain(d3.extent(data, function(d) { return +d[clickedTheme+'_score']; })).nice();
+
+    // Update scale domains
+//    xScale.domain([0, d3.max(dataset, function(d) {
+//        return d[0]; })]);
+//    yScale.domain([0, d3.max(dataset, function(d) {
+//        return d[1]; })]);
+
+
+    // Update circles
+    svg1.selectAll(".dot")
+        .data(data)  // Update with new data
+        .transition()  // Transition from old to new
+        .duration(1000)  // Length of animation
+        .on("start", function() {  // Start animation
+            d3.select(this)  // 'this' means the current element
+                .attr("fill", "#CF232B");  // Change color
+//                .attr("r", (largeRadius+stdRadius)/2);  // Change size
+        })
+        .delay(function(d, i) {
+            return i / data.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+        })
+        //.ease("linear")  // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
+        .attr("cx", function(d) {
+            return x1(+d[clickedTheme+'_score']);  // Circle's X
+        })
+        .attr("cy", function(d) {
+            return y1(+d['Amount Awarded']);  // Circle's Y
+        })
+        .on("end", function() {  // End animation
+            d3.select(this)  // 'this' means the current element
+                .transition()
+                .duration(500)
+                .attr("fill", function(d) { return color(d[clickedTheme+'_rank']);})  // Change color
+                .attr("r", stdRadius);  // Change radius
+        });
+//        .on('mouseenter', function(d) {
+//  //        console.log(d);
+//          d3.selectAll('.district').attr('fill-opacity',0.1);
+//          d3.selectAll('.'+d['District Code']).attr('fill-opacity',1);       
+//
+//          d3.selectAll('.'+d['District Code']+'.dot').transition()
+//              .ease(d3.easePoly)
+//              .duration(100)
+//              .attr('r',largeRadius);  
+//          tool_tip.show(d['District Code'],document.getElementsByClassName('map_district ' +d['District Code'])[0]);
+//          tool_tip_scatter.show(d['District Code'],document.getElementsByClassName('dot ' + d['District Code'])[0]);
+//        })
+//        .on('mouseleave', function(d) {
+//  //        console.log('mouseout');
+//          d3.selectAll('.district').attr('fill-opacity',1);
+//          d3.selectAll('.dot').transition()
+//              .ease(d3.easePoly)
+//              .duration(100)
+//              .attr('r',stdRadius);  
+//          tool_tip.hide(d['District Code'],document.getElementsByClassName('map_district ' +d['District Code'])[0]);
+//          tool_tip_scatter.hide(d['District Code'],document.getElementsByClassName('dot ' + d['District Code'])[0]);
+//        });
+
+        // Update X Axis
+        svg1.select(".x.axis")
+            .transition()
+            .duration(1000)
+            .call(xAxis)
+            .selectAll('.label')
+            .text('Depravition Score for ' + longThemes[clickedTheme] + " (Larger values means more deprivation)");
+
+        // Update Y Axis
+        svg1.select(".y.axis")
+            .transition()
+            .duration(100)
+            .call(yAxis);
+  
+  
+}
+
+  
+ 
+  
+</script>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-123134174-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-123134174-1');
+</script>

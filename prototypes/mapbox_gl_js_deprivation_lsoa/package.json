@@ -1,0 +1,16 @@
+{
+  "name": "basic",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "react-scripts start"
+  },
+  "devDependencies": {
+    "react-scripts": "^1.0.10"
+  },
+  "dependencies": {
+    "d3": "^5.7.0",
+    "mapbox-gl": "^0.39.1",
+    "react": "^15.5.0",
+    "react-dom": "^15.5.0"
+  }
+}
