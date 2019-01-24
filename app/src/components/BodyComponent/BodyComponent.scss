@@ -1,0 +1,10 @@
+.BodyComponent{
+  .center-col {
+    width: 700px
+  }
+  .right-col {
+    padding-left: 40px;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+}

@@ -28,8 +28,8 @@ class DeprivationScatterPlot extends Component {
       console.log(data);
   
       var margin = {top: 10, right: 10, bottom: 90, left: 90},
-      width = 400 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom,
+      width = 500 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom,
       node = select(this.node);
   
       const xValues = data.map(d => d[this.props.xVal]);
@@ -79,7 +79,7 @@ class DeprivationScatterPlot extends Component {
         return (
       <div className="DonorBarChart">
         <svg className="StackedBarChart" ref={node => this.node = node}
-          width={400} height={400}>
+          width={500} height={500}>
         </svg>
       </div>
       );
