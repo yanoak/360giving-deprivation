@@ -1,32 +1,14 @@
-// import React, { Component } from 'react'
-// import PropTypes from 'prop-types'
-// import styles from './DonorBarChart.scss'
-
-// class DonorBarChart extends Component {
-//     constructor(props) {
-//         super(props)
-//     }
-    
-//     render() {
-//         return (
-//             <div className="DonorBarChart"></div>
-//         );
-//     }
-// }
-
-// DonorBarChart.propTypes = {}
-
-// DonorBarChart.defaultProps = {}
-
-// export default DonorBarChart
-
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styles from './DonorBarChart.scss'
 import { select } from 'd3-selection'
 import { scaleBand,scaleLinear } from 'd3-scale'
 import { axisBottom, axisLeft } from 'd3-axis'
+import { format } from 'd3-format'
+import { makeTooltip } from '../../VizHelpers'
 import _ from 'lodash'
+import { default as tip } from 'd3-tip'
+
 
 class DonorBarChart extends Component {
   constructor(props){
@@ -43,6 +25,21 @@ class DonorBarChart extends Component {
 
   createBarChart() {
     let data = this.props.data;
+    // select('.d3-tip').remove();
+
+    let tooltip = tip()
+      .attr('class', 'd3-tip')
+      .offset([0, -20])
+      .direction(d => 'w')
+      .html((d) => {
+        return makeTooltip(
+          d.year,
+          [
+            {label:"Number of projects", value:d.projects},
+            {label:"Amount Awarded", value:"£"+format(",.0f")(d.amount)}
+          ]
+        )
+      })
 
     // console.log(data);
 
@@ -52,7 +49,14 @@ class DonorBarChart extends Component {
     node = select(this.node);
 
     const values = data.values.map(d => d.value['total_awarded']);
-    const dataForChart = data.values.map(d => ({year:parseInt(d.key),amount:d.value['total_awarded']}) );
+    const dataForChart = data.values
+      .map(d => 
+        ({
+          year:parseInt(d.key),
+          amount:d.value['total_awarded'],
+          projects:d.value['projects']
+        }) 
+      );
 
     // set the ranges
     var x = scaleBand()
@@ -80,7 +84,18 @@ class DonorBarChart extends Component {
       .attr("width", x.bandwidth())
       .attr("y", function(d) { return y(d.amount); })
       .attr("fill", '#6e40e6')
-      .attr("height", function(d) { return height - y(d.amount); });
+      // .attr("fill", '#602f8f')
+      .attr("height", function(d) { return height - y(d.amount); })
+      .on('mouseover', function(d) {
+        tooltip.show(d,this);
+        select(this)
+          .attr("fill", "#f48320");
+      })
+      .on('mouseout', function(d) {
+        tooltip.hide();
+        select(this)
+          .attr("fill", '#6e40e6');
+      });
 
     // add the x Axis
     g.append("g")
@@ -89,22 +104,15 @@ class DonorBarChart extends Component {
 
     // add the y Axis
     g.append("g")
-    .call(axisLeft(y));
+    .call(axisLeft(y)
+      .ticks(4)
+      .tickFormat(function(d) {return "£"+format(".3s")(d)
+        .replace('M', ' mil')
+        .replace('G', ' bil')
+      }));
     
-    // let tooltip = tip()
-    //   .attr('class', 'd3-tip')
-    //   .offset([0, 20])
-    //   .direction(d => 'e')
-    //   .html((d) => {
-    //     let [typel1,typel2] = d.type.split(' | ')
-    //     typel2 = typel2 ? typel2 : typel1;
-    //     return "<div style='font-size:12px; background-color: rgba(255,255,255,0.7); padding:5px'><strong>" + typel2 + "</strong> </span>"
-    //     // + "<br/><strong>Revenue type detail:</strong> " + typel2
-    //     + "<br/><strong>Revenue ("+this.props.currencyValue+"):</strong> " + format(",.0f")((d[1] - d[0]))
-    //     + '</div>';
-    //   })
 
-    // node.call(tooltip);
+    node.call(tooltip);
   }
 
   render() {

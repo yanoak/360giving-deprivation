@@ -1,1 +1,7 @@
-.MapComponent{}
+.MapComponent{
+  .MapComponentMap {
+    .mapboxgl-canvas {
+      top: 0;
+    }
+  }
+}

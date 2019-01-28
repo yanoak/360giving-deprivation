@@ -111,6 +111,8 @@ class TempBodyComponent extends React.Component {
         data
       });
 
+      
+
       this.map.addLayer({
         id: 'countries',
         type: 'fill',

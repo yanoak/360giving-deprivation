@@ -22,9 +22,45 @@ class App extends Component {
 		layerControls: [],
 		selectedRegion: 'eng',
     selectedGeoLevel: 'LAD',
-    selectedComparison: ['deprivation','comparison_IMD_avg_score']
+		selectedComparison: ['deprivation','comparison_IMD_avg_score'],
+		filters: {}
   }
-  
+	
+	addFilter = (filters,toggle) => {
+		console.log(filters)
+		const filterKeys = Object.keys(filters);
+		let newFilterObj = this.state.filters;
+
+		filterKeys.forEach(k => {
+			console.log(newFilterObj[k]);
+			console.log(filters[k]);
+			if (!toggle || filters[k]==='reset' 
+			|| !newFilterObj[k] || newFilterObj[k]==='reset') {
+				newFilterObj[k] = filters[k];
+			} else {
+				let consolidatedFilters = [];
+				consolidatedFilters = consolidatedFilters
+					.concat(newFilterObj[k].filter(d => !(filters[k]).includes(d)));
+				console.log(consolidatedFilters);
+				consolidatedFilters =	consolidatedFilters
+					.concat(filters[k].filter(d => !(newFilterObj[k]).includes(d)));
+				console.log(consolidatedFilters);
+
+				newFilterObj[k] = consolidatedFilters;
+			}
+		})
+
+		this.setState({
+			filters: newFilterObj,
+			data: prepAllData(this.state.data,
+				this.state.selectedRegion,
+				this.state.selectedGeoLevel,
+				this.state.selectedComparison,
+				newFilterObj)
+		});
+		
+	}
+
   componentDidMount() { 
 		this.getData();
 	}  
@@ -34,7 +70,8 @@ class App extends Component {
       .then(data => prepAllData(data,
         this.state.selectedRegion,
         this.state.selectedGeoLevel,
-        this.state.selectedComparison))
+				this.state.selectedComparison,
+				this.state.filters))
 			.then(data =>
 				// set initial data
 				this.setState({ data },
@@ -56,10 +93,12 @@ class App extends Component {
 		const handleRegionChange = (selectedOption) => {
 			this.setState({ 
 				selectedRegion: selectedOption.value,
+				filters: {},
 				data: prepAllData(this.state.data,
 					selectedOption.value,
 					this.state.selectedGeoLevel,
-					this.state.selectedComparison)
+					this.state.selectedComparison,
+					{})
 			});
 			console.log(`Location selected:`, selectedOption);
 		}
@@ -67,10 +106,12 @@ class App extends Component {
 		const handleGeoChange = (selectedOption) => {
 			this.setState({ 
 				selectedGeoLevel: selectedOption.value,
+				filters: {},
 				data: prepAllData(this.state.data,
 					this.state.selectedRegion,
 					selectedOption.value,
-					this.state.selectedComparison)
+					this.state.selectedComparison,
+					{})
 			});
 			console.log(`Geo level selected:`, selectedOption);
 		}
@@ -81,9 +122,16 @@ class App extends Component {
 				data: prepAllData(this.state.data,
 					this.state.selectedRegion,
 					this.state.selectedGeoLevel,
-					selectedOption.value)
+					selectedOption.value,
+					this.state.filters)
 			});
 			console.log(`Comparison var selected:`, selectedOption);
+		}
+
+		const getComparisonVarLabel = () => {
+			return this.state.data.comparisonVars
+				.filter(d => d.value[0] == this.state.selectedComparison[0] &&
+					d.value[1] == this.state.selectedComparison[1])[0]
 		}
 
 		const isLoading = !!(_.isEmpty(this.state.data)) ? true : false;
@@ -125,11 +173,7 @@ class App extends Component {
 				{!!isLoading
 				? 'loading'
 				:	<Select
-						value={
-							this.state.data.comparisonVars
-								.filter(d => d.value[0] == this.state.selectedComparison[0] &&
-									d.value[1] == this.state.selectedComparison[1])[0]
-						}
+						value={getComparisonVarLabel()}
 						onChange={handleComparisonChange}
 						options={Object.values(this.state.data.comparisonVars)}
 						className='comparisonPicker'
@@ -166,8 +210,15 @@ class App extends Component {
 							smallMultiplesData={this.state.data.dataForSmallMultiples}
 							scatterPlotData={this.state.data.dataForScatter}
 							mapData={this.state.data.dataForMap}
+							allMapSources={this.state.data.allMapSources}
 							// scatterPlotXVal={this.state.selectedComparison[1].slice(11)}
 							scatterPlotXVal={this.state.selectedComparison[1]}
+							scatterPlotXValLabel={getComparisonVarLabel()}
+							addFilter={this.addFilter.bind(this)}
+							yearsRange={this.state.filters.years}
+							mapFormatting={this.state.data.regions[this.state.selectedRegion]}
+							mapGeoId={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].id}
+							mapGeoPlaceName={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].placeName}
 						/>
 						{/* <TempBodyComponent
 							smallMultiplesData={this.state.data.dataForSmallMultiples}

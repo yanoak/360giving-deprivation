@@ -13,11 +13,14 @@ import comparison_eng_ward_charities from './data/comparison/comparison_eng_ward
 import comparison_eng_LAD_population from './data/comparison/comparison_eng_LAD_population.csv';
 import comparison_eng_ward_population from './data/comparison/comparison_eng_ward_population.csv';
 
+
+import _ from 'lodash';
+
 export const loadAllData = () => {
 
   const files = [
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', data: geo_eng_LAD},
-    { name: 'geo_eng_ward', id: 'wd17cd', data: geo_eng_ward},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: geo_eng_LAD, filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_LAD.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: geo_eng_ward, filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_ward.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
       data: grants_eng_LAD_ward_donor_year,
@@ -50,7 +53,7 @@ export const loadAllData = () => {
   }
 
   const regions = {
-    eng: { value: 'eng', label: 'England', position: [52.561928, -1.464854] }
+    eng: { value: 'eng', label: 'England', position: [-1.464854, 52.561928], zoom: 5 }
   }
 
   const geoLevels = {
@@ -58,10 +61,13 @@ export const loadAllData = () => {
     ward: { value: 'ward', label: 'Ward'}
   }
 
+
   const promises = [];
 
   files.forEach((f) => {
     if (typeof(f.data) !== 'string') {
+      promises.push( f.data );
+    }  else if (f.data.slice(0,4) === 'geo_') {
       promises.push( f.data );
     } else if (f.data.slice(-4) === '.csv') {
       promises.push( csv(f.data) );
@@ -78,7 +84,8 @@ export const loadAllData = () => {
       grant: {eng: {}}, 
       abbreviations: abbreviations,
       regions: regions,
-      geoLevels: geoLevels
+      geoLevels: geoLevels,
+      allMapSources: []
     };
 
     console.log(values);
@@ -92,8 +99,16 @@ export const loadAllData = () => {
        switch (category) {
          case 'geo': { 
            result.geo[country][geoLevel] = {
+             'sourceName': files[i].name,
              'id': files[i].id, 
-             'data': values[i]
+             'placeName': files[i].placeName,
+             'data': values[i],
+             'filePath': files[i].filePath,
+             'lookUp': _.keyBy(
+                values[i].features
+                  .map(f => ({'key': f.properties[files[i].id],'value': f.properties[files[i].placeName]}) ), 
+               'key'
+               )
             };
            break; 
           }
@@ -115,18 +130,11 @@ export const loadAllData = () => {
          default: break;
        }
     }
-
-    // values
-    // .filter(d => d.name === 'comparison_eng_LAD_deprivation')[0].data
-
-    // result.comparison.eng_LAD_deprivation = dsv(
-    //   comparison_eng_LAD_deprivation, data => {
-    //     //whole data set
-    //     // draw chart here
-    //     console.log(data);
-    //     return data;
-    //   })
-    
+    _.forEach(result.geo, function(valueRegion, keyRegion) {
+      _.forEach(valueRegion, function(valueLevel, keyLevel) {
+        result.allMapSources.push(valueLevel)
+      })
+    });
 
     return result;
   });

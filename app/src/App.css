@@ -15,7 +15,7 @@
 .App-header {
   background-color: #f4f4f4;
   min-width: 100%;
-  min-height: 20vh;
+  min-height: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -25,7 +25,7 @@
 }
 
 .col {
-  min-width: 300px;
+  min-width: 400px;
   text-align: left;
 }
 
@@ -42,11 +42,10 @@
   }
 }
 
-.mapboxgl-canvas {
-  position: absolute;
-  top: 20vh;
-  bottom: 0;
-  width: 100%;
-  height: 50;
-  left: 0px;
+button {
+  min-height: 20px;
+  align-self: end;
 }
+
+
+
