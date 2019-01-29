@@ -1,41 +1,57 @@
 // import * as d3 from 'd3';
 import { csv, json } from 'd3-fetch';
 
-import geo_eng_LAD from './data/geo/geo_eng_LAD.json';
-import geo_eng_ward from './data/geo/geo_eng_ward.json';
+// import geo_eng_LAD from './data/geo/geo_eng_LAD.json';
+// import geo_eng_ward from './data/geo/geo_eng_ward.json';
 
-import grants_eng_LAD_ward_donor_year from './data/grants/grants_eng_LAD_ward_donor_year.csv';
+// import grants_eng_LAD_ward_donor_year from './data/grants/grants_eng_LAD_ward_donor_year.csv';
 
-import comparison_eng_LAD_deprivation from './data/comparison/comparison_eng_LAD_deprivation.csv';
-import comparison_eng_ward_deprivation from './data/comparison/comparison_eng_ward_deprivation.csv';
-import comparison_eng_LAD_charities from './data/comparison/comparison_eng_LAD_charities.csv';
-import comparison_eng_ward_charities from './data/comparison/comparison_eng_ward_charities.csv';
-import comparison_eng_LAD_population from './data/comparison/comparison_eng_LAD_population.csv';
-import comparison_eng_ward_population from './data/comparison/comparison_eng_ward_population.csv';
+// import comparison_eng_LAD_deprivation from './data/comparison/comparison_eng_LAD_deprivation.csv';
+// import comparison_eng_ward_deprivation from './data/comparison/comparison_eng_ward_deprivation.csv';
+// import comparison_eng_LAD_charities from './data/comparison/comparison_eng_LAD_charities.csv';
+// import comparison_eng_ward_charities from './data/comparison/comparison_eng_ward_charities.csv';
+// import comparison_eng_LAD_population from './data/comparison/comparison_eng_LAD_population.csv';
+// import comparison_eng_ward_population from './data/comparison/comparison_eng_ward_population.csv';
 
 
 import _ from 'lodash';
 
+// import geo_eng_LAD from './data/geo/geo_eng_LAD.json';
+// import geo_eng_ward from './data/geo/geo_eng_ward.json';
+
+// import grants_eng_LAD_ward_donor_year from './data/grants/grants_eng_LAD_ward_donor_year.csv';
+
+// import comparison_eng_LAD_deprivation from './data/comparison/comparison_eng_LAD_deprivation.csv';
+// import comparison_eng_ward_deprivation from './data/comparison/comparison_eng_ward_deprivation.csv';
+// import comparison_eng_LAD_charities from './data/comparison/comparison_eng_LAD_charities.csv';
+// import comparison_eng_ward_charities from './data/comparison/comparison_eng_ward_charities.csv';
+// import comparison_eng_LAD_population from './data/comparison/comparison_eng_LAD_population.csv';
+// import comparison_eng_ward_population from './data/comparison/comparison_eng_ward_population.csv';
+
+
+
 export const loadAllData = () => {
 
+
   const files = [
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: geo_eng_LAD, filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_LAD.json'},
-    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: geo_eng_ward, filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_ward.json'},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_LAD.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_ward.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
-      data: grants_eng_LAD_ward_donor_year,
+      data: 'grants_eng_LAD_ward_donor_year',
       id: {
         'LAD': 'Recipient District Geographic Code',
         'ward': 'Recipient Ward Geographic Code'
       },
-      dataField: 'Amount Awarded'
+      dataField: 'Amount Awarded', 
+      filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/grants/grants_eng_LAD_ward_donor_year.csv'
     },
-    { name: 'comparison_eng_LAD_deprivation', id: 'LAD2013_CD', data: comparison_eng_LAD_deprivation},
-    { name: 'comparison_eng_ward_deprivation', id: 'WD17CD', data: comparison_eng_ward_deprivation},
-    { name: 'comparison_eng_LAD_charities', id: 'lad11cd', data: comparison_eng_LAD_charities},
-    { name: 'comparison_eng_ward_charities', id: 'wd11cd', data: comparison_eng_ward_charities},
-    { name: 'comparison_eng_LAD_population', id: 'lad11cd', data: comparison_eng_LAD_population},
-    { name: 'comparison_eng_ward_population', id: 'Ward Code 1', data: comparison_eng_ward_population},
+    { name: 'comparison_eng_LAD_deprivation', id: 'LAD2013_CD', data: 'comparison_eng_LAD_deprivation', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_deprivation.csv'},
+    { name: 'comparison_eng_ward_deprivation', id: 'WD17CD', data: 'comparison_eng_ward_deprivation', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_deprivation.csv'},
+    { name: 'comparison_eng_LAD_charities', id: 'lad11cd', data: 'comparison_eng_LAD_charities', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_charities.csv'},
+    { name: 'comparison_eng_ward_charities', id: 'wd11cd', data: 'comparison_eng_ward_charities', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_charities.csv'},
+    { name: 'comparison_eng_LAD_population', id: 'lad11cd', data: 'comparison_eng_LAD_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_population.csv'},
+    { name: 'comparison_eng_ward_population', id: 'Ward Code 1', data: 'comparison_eng_ward_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_population.csv'},
   ]
 
   const abbreviations = {
@@ -65,16 +81,19 @@ export const loadAllData = () => {
   const promises = [];
 
   files.forEach((f) => {
-    if (typeof(f.data) !== 'string') {
-      promises.push( f.data );
-    }  else if (f.data.slice(0,4) === 'geo_') {
-      promises.push( f.data );
-    } else if (f.data.slice(-4) === '.csv') {
-      promises.push( csv(f.data) );
-    } else if (f.data.slice(-5) === '.json') {
-      promises.push( json(f.data) );
+    // if (typeof(f.data) !== 'string') {
+    //   promises.push( f.data );
+    // }  else 
+    // if (f.data.slice(0,4) === 'geo_') {
+    //   promises.push( f.filePath );
+    // } else 
+    if (f.filePath.slice(-4) === '.csv') {
+      promises.push( csv(f.filePath) );
+    } else if (f.filePath.slice(-5) === '.json') {
+      promises.push( json(f.filePath) );
     }
   });
+
 
   return Promise.all(promises).then(function(values) {
 
