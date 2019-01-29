@@ -1,8 +1,16 @@
 {
-  "main.css": "static/css/main.5418df06.css",
-  "main.css.map": "static/css/main.5418df06.css.map",
-  "main.js": "static/js/main.ac9a034e.js",
-  "main.js.map": "static/js/main.ac9a034e.js.map",
-  "static/media/DeprivationScatterPlot.scss": "static/media/DeprivationScatterPlot.4b8e0526.scss",
-  "static/media/DonorBarChart.scss": "static/media/DonorBarChart.cf45bb20.scss"
+  "main.css": "/360giving-deprivation/static/css/main.31032cd9.chunk.css",
+  "main.js": "/360giving-deprivation/static/js/main.9976e19d.chunk.js",
+  "main.js.map": "/360giving-deprivation/static/js/main.9976e19d.chunk.js.map",
+  "static/css/1.f6a8ed85.chunk.css": "/360giving-deprivation/static/css/1.f6a8ed85.chunk.css",
+  "static/js/1.87f86955.chunk.js": "/360giving-deprivation/static/js/1.87f86955.chunk.js",
+  "static/js/1.87f86955.chunk.js.map": "/360giving-deprivation/static/js/1.87f86955.chunk.js.map",
+  "runtime~main.js": "/360giving-deprivation/static/js/runtime~main.f3216256.js",
+  "runtime~main.js.map": "/360giving-deprivation/static/js/runtime~main.f3216256.js.map",
+  "static/css/1.f6a8ed85.chunk.css.map": "/360giving-deprivation/static/css/1.f6a8ed85.chunk.css.map",
+  "static/media/logo.svg": "/360giving-deprivation/static/media/logo.5d5d9eef.svg",
+  "static/css/main.31032cd9.chunk.css.map": "/360giving-deprivation/static/css/main.31032cd9.chunk.css.map",
+  "index.html": "/360giving-deprivation/index.html",
+  "precache-manifest.18f3748eba09c8c69ef1a15c9d0e9a5b.js": "/360giving-deprivation/precache-manifest.18f3748eba09c8c69ef1a15c9d0e9a5b.js",
+  "service-worker.js": "/360giving-deprivation/service-worker.js"
 }
