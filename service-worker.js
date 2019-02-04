@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/360giving-deprivation/precache-manifest.18f3748eba09c8c69ef1a15c9d0e9a5b.js"
+  "/360giving-deprivation/precache-manifest.6e185f6443e7c21c37d2387392224e7f.js"
 );
 
 workbox.clientsClaim();
