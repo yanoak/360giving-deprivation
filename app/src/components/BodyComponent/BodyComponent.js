@@ -71,6 +71,7 @@ class BodyComponent extends Component {
                 allMapSources={this.props.allMapSources}
                 xVal={this.props.scatterPlotXVal}
                 xValLabel={this.props.scatterPlotXValLabel}
+                yMinLimit={this.props.yMinLimit}
                 mapGeoId={this.props.mapGeoId}
                 mapGeoPlaceName={this.props.mapGeoPlaceName}
               />
@@ -83,6 +84,7 @@ class BodyComponent extends Component {
                 // xVal='IMD_avg_score'
                 xVal={this.props.scatterPlotXVal}
                 xValLabel={this.props.scatterPlotXValLabel}
+                yMinLimit={this.props.yMinLimit}
                 dimensions={({width:400,height:400})}
                 addFilter={this.props.addFilter.bind(this)}
               />

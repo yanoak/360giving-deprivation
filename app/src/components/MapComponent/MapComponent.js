@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { getColorScale, convertHex, makeTooltip } from '../../VizHelpers'
-
+import { getColorScale, convertHex, makeTooltip, getExtent } from '../../VizHelpers'
+import { format } from 'd3-format'
+import { legendColor } from 'd3-svg-legend'
+import { select } from 'd3-selection'
 import mapboxgl from 'mapbox-gl'
 import './MapComponent.scss'
 import { extent } from 'd3-array'
@@ -20,28 +22,14 @@ class MapComponent extends Component {
 
   setStateForMe = (state) => this.setState(state);
 
-  // Create a popup, but don't add it to the map yet.
-  markerHeight = 5; 
-  markerRadius = 5; 
-  linearOffset = 25;
-  popupOffsets = {
-  'top': [0, 0],
-  'top-left': [0,0],
-  'top-right': [0,0],
-  'bottom': [0, -this.markerHeight],
-  'bottom-left': [this.linearOffset, (this.markerHeight - this.markerRadius + this.linearOffset) * -1],
-  'bottom-right': [-this.linearOffset, (this.markerHeight - this.markerRadius + this.linearOffset) * -1],
-  'left': [this.markerRadius, (this.markerHeight - this.markerRadius) * -1],
-  'right': [-this.markerRadius, (this.markerHeight - this.markerRadius) * -1]
-  };
-
   popup = new mapboxgl.Popup({
     closeButton: false,
-    offset: this.popupOffsets
+    anchor: 'left',
+    offset: [10,0]
   });
 
   componentDidMount() {
-    const { opacity,mainLayerId,mainSourceId } = this.state;
+    const { opacity,mainLayerId } = this.state;
 
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
@@ -55,20 +43,21 @@ class MapComponent extends Component {
     
 
     myMap.on('load', () => {
-      const {mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName,allMapSources} = this.props;
-      const expression = this.buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity);
+      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName,allMapSources} = this.props;
+      const expression = this.buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit);
       
       allMapSources.forEach(d => this.addSource(d.sourceName,d.filePath));
       this.addDataLayer(expression,mapData);
-      this.setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,this.popup);
-      
+      this.setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,mapGeoId,this.popup,
+        scatterPlotData,xVal,xValLabel);
       
 
     });
 
   }
 
-  setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,popup) {
+  setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,mapGeoId,
+    popup,scatterPlotData,xVal,xValLabel) {
     let hoveredStateId =  null;
 
     let myMap = this.map;
@@ -80,15 +69,23 @@ class MapComponent extends Component {
         if (hoveredStateId) {
             myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
           }
-          // hoveredStateId = e.features[0].properties[mapGeoId];
           hoveredStateId = e.features[0].id;
-          console.log({source: mapData, id: hoveredStateId});
           myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: true});
 
+          const placeName = e.features[0].properties[mapGeoPlaceName];
+          const placeCode = e.features[0].properties[mapGeoId];
+          const tooltipTitle = placeName + " [" + placeCode + "]";
+          const scatterDataPoint = scatterPlotData.filter(d => d.id === placeCode);
+          const tooltipVars = scatterDataPoint.length > 0 
+          ? [
+              {label:xValLabel.label, value:format(".2f")(scatterDataPoint[0][xVal])},
+              {label:"Amount Awarded", value:"£"+format(",.0f")(scatterDataPoint[0]['Amount Awarded'])}
+            ]
+          : [];
+
           // Display a popup with the name of the location
-          console.log(e.lngLat);
           popup.setLngLat(e.lngLat)
-            .setHTML(makeTooltip(e.features[0].properties[mapGeoPlaceName]))
+            .setHTML(makeTooltip(tooltipTitle,tooltipVars))
             .addTo(myMap);
 
         }
@@ -105,23 +102,48 @@ class MapComponent extends Component {
     });
   }
 
-  buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity) {
+  buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit) {
+
+    const yLabel = 'Amount Awarded'
 
     const xValues = scatterPlotData.map(d => +d[xVal]);
-    const yValues = scatterPlotData.map(d => +d['Amount Awarded']);
+    const yValues = scatterPlotData.map(d => +d[yLabel]);
         
-    const colorScale = getColorScale(extent(xValues));
+    const colorScale = getColorScale(extent(xValues,this.props.y));
+    let [yMin, yMax] = getExtent(yValues,yMinLimit);
 
     let expression = ["match", ["get", mapGeoId]];
+    console.log([yMin, yMax]);
 
     scatterPlotData.forEach(function(row) {
-      const color = row["filterLocation"] 
+      // console.log(yMin,+row[yLabel],row["filterLocation"])
+      const color = (row["filterLocation"] && +row[yLabel] >= yMin)
         ? convertHex(colorScale(+row[xVal]),opacity) 
         : "rgba(0,0,0,0)" ;
       expression.push(row["id"], color);
     });
 
     expression.push("rgba(0,0,0,0)");
+
+    var svg = select("#legendContainer");
+    svg.selectAll("g").remove();
+
+    svg.append("g")
+      .attr("class", "legendQuant")
+      // .attr("transform", "translate(20,20)");
+
+    console.log(colorScale);
+
+    var legend = legendColor()
+      .labelFormat(format(".3s"))
+      // .useClass(true)
+      .titleWidth(100)
+      .scale(colorScale);
+
+    svg.select(".legendQuant")
+      .call(legend);
+
+
     return expression;
   }
 
@@ -182,7 +204,7 @@ class MapComponent extends Component {
       nextProps.scatterPlotData !== this.props.scatterPlotData ||
       nextProps.xVal !== this.props.xVal) 
     {
-      const {mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName} = nextProps;
+      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName} = nextProps;
       const { opacity } = this.state;
 
       const waiting = () => {
@@ -193,9 +215,10 @@ class MapComponent extends Component {
           this.removeDataLayer();
 
           const expression = this.buildDataLayer(mapData, scatterPlotData, 
-            xVal, mapGeoId, mapGeoPlaceName, opacity);
+            xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit);
           this.addDataLayer(expression,mapData);
-          this.setUpMouseOver(this.state.mainLayerId,mapData,mapGeoPlaceName,this.popup);
+          this.setUpMouseOver(this.state.mainLayerId,mapData,mapGeoPlaceName,
+            mapGeoId,this.popup,scatterPlotData,xVal,xValLabel);
         }
       }
       waiting();
@@ -218,11 +241,23 @@ class MapComponent extends Component {
       height: '500px'
     };
 
+    
+    
+
 
     // return <div className="MapComponent" style={style} ref={el => this.mapContainer = el} />;
 
     return <div className="MapComponent" >
-      <div style={style} ref={el => this.mapContainer = el} className="absolute top right left bottom MapComponentMap" />
+      <div style={style} ref={el => this.mapContainer = el} className="absolute top right left bottom MapComponentMap">
+      <div className='map-overlay top'>
+        <div className='map-overlay-inner'>
+          <svg id="legendContainer">
+
+          </svg>
+        </div>
+      </div>
+      </div>
+      
     </div>
   }
 

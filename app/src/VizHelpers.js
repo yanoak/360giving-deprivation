@@ -1,5 +1,6 @@
 
 import {scaleQuantile} from 'd3-scale';
+import {extent} from 'd3-array';
 import _ from 'lodash';
 
 export const getColorScale = (d) => {
@@ -31,3 +32,22 @@ export const makeTooltip = (title,items) => {
   htmlBlock += '</div>';
   return htmlBlock;
 }
+
+export const getPowersOf10 = (minVal,maxVal) => {
+  console.log(minVal,maxVal);
+  let currentPow = 0;
+  let returnVals = [];
+  while (Math.pow(10,currentPow) <= maxVal) {
+    if (Math.pow(10,currentPow) >= minVal) 
+      returnVals.push(Math.pow(10,currentPow));
+    currentPow++;
+  }
+  return returnVals;
+}
+
+export const getExtent = (yValues,yMinLimit) => {
+  let [yMin,yMax] = extent(yValues);
+  yMin = yMin > 0 ? yMin : yMinLimit;
+  yMax = yMax > 0 ? yMax : yMin;
+  return [yMin,yMax]
+} 

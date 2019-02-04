@@ -23,7 +23,8 @@ class App extends Component {
 		selectedRegion: 'eng',
     selectedGeoLevel: 'LAD',
 		selectedComparison: ['deprivation','comparison_IMD_avg_score'],
-		filters: {}
+		filters: {},
+		yMinLimit: 1000
   }
 	
 	addFilter = (filters,toggle) => {
@@ -214,6 +215,7 @@ class App extends Component {
 							// scatterPlotXVal={this.state.selectedComparison[1].slice(11)}
 							scatterPlotXVal={this.state.selectedComparison[1]}
 							scatterPlotXValLabel={getComparisonVarLabel()}
+							yMinLimit={this.state.yMinLimit}
 							addFilter={this.addFilter.bind(this)}
 							yearsRange={this.state.filters.years}
 							mapFormatting={this.state.data.regions[this.state.selectedRegion]}
