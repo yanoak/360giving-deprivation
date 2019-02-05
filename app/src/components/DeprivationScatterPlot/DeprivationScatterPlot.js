@@ -81,7 +81,7 @@ class DeprivationScatterPlot extends Component {
       const bigStroke = 3;
 
 
-      const [yMin, yMax] = getExtent(yValues,this.props.yMinLimit);
+      const [yMin, yMax] = getExtent(yValues,this.props.yMinLimit,true);
 
       data = data.filter(d => {
         // console.log(this.props.yMinLimit,+d[yVal]);
@@ -94,13 +94,13 @@ class DeprivationScatterPlot extends Component {
       // set the ranges
       var x = scaleLinear()
                 .range([0, width])
-                .domain(extent(xValues))
+                .domain(getExtent(xValues))
                 // .padding(0.1);
       var y = scaleLog()
                 .range([height, 0])
                 .domain([yMin,yMax])
           
-    const colorScale = getColorScale(extent(xValues));
+    const colorScale = getColorScale(getExtent(xValues));
 
     const zoomed = () => {
       // create new scale ojects based on event
@@ -152,7 +152,7 @@ class DeprivationScatterPlot extends Component {
     .enter().append("circle")
       .attr("class", "dot")
       .attr("r", smallRadius)
-      .attr("stroke", '#999')
+      .attr("stroke", '#99999933')
       .attr("stroke-width", smallStroke)
       .attr("cx", d => x(+d[xVal]))
       .attr("cy", d => {
@@ -172,7 +172,7 @@ class DeprivationScatterPlot extends Component {
         select(this)
           .attr("r", smallRadius)
           .attr("fill",d => d['filterLocation'] ? convertHex(colorScale(+d[xVal]),opacity) : "rgba(0,0,0,0)")
-          .attr("stroke", '#999')
+          .attr("stroke", '#99999933')
           .attr("stroke-width", smallStroke);
       })
       .on('click', function(d) { 

@@ -16,11 +16,15 @@ class MapComponent extends Component {
     super(props);
     this.state = {
       opacity: 90,
-      mainLayerId: 'admin-level-boundaries'
+      mainLayerId: 'admin-level-boundaries',
+      geoId: ''
     }
   }
 
   setStateForMe = (state) => this.setState(state);
+  callBackFuncClick = () => null;
+  callBackFuncMMove = () => null;
+  callBackFuncMLeave = () => null;
 
   popup = new mapboxgl.Popup({
     closeButton: false,
@@ -43,17 +47,32 @@ class MapComponent extends Component {
     
 
     myMap.on('load', () => {
-      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName,allMapSources} = this.props;
+      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName,allMapSources,addFilter} = this.props;
       const expression = this.buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit);
       
       allMapSources.forEach(d => this.addSource(d.sourceName,d.filePath));
       this.addDataLayer(expression,mapData);
       this.setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,mapGeoId,this.popup,
         scatterPlotData,xVal,xValLabel);
+      console.log("calling setuponlick from componentDidMount");
+      this.setUpOnClick(mainLayerId,mapGeoId,addFilter);
       
 
     });
 
+  }
+
+  setUpOnClick(mainLayerId,mapGeoId,filterFunc) {
+    let myMap = this.map;
+
+    myMap.off('click', mainLayerId, this.callBackFuncClick);
+
+    this.callBackFuncClick = (e) => {
+      const placeCode = e.features[0].properties[mapGeoId];
+      filterFunc({'location': [placeCode] },true);
+    }
+
+    myMap.on('click', mainLayerId, this.callBackFuncClick);
   }
 
   setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,mapGeoId,
@@ -61,45 +80,56 @@ class MapComponent extends Component {
     let hoveredStateId =  null;
 
     let myMap = this.map;
+    console.log(mapGeoId);
+    myMap.off("mousemove", mainLayerId, this.callBackFuncMMove);
+    myMap.off("mouseleave", mainLayerId, this.callBackFuncMLeave);
+
+
+    this.callBackFuncMMove = (e) =>  {
+      console.log(mapGeoId);
+
+      if (e.features.length > 0) {
+        if (hoveredStateId) {
+          myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
+        }
+        hoveredStateId = e.features[0].id;
+        myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: true});
+
+        const placeName = e.features[0].properties[mapGeoPlaceName];
+        const placeCode = e.features[0].properties[mapGeoId];
+        const tooltipTitle = placeName + " [" + placeCode + "]";
+        const scatterDataPoint = scatterPlotData.filter(d => d.id === placeCode);
+        const tooltipVars = scatterDataPoint.length > 0 
+        ? [
+            {label:xValLabel.label, value:format(".2f")(scatterDataPoint[0][xVal])},
+            {label:"Amount Awarded", value:"£"+format(",.0f")(scatterDataPoint[0]['Amount Awarded'])}
+          ]
+        : [];
+
+        // Display a popup with the name of the location
+        popup.setLngLat(e.lngLat)
+          .setHTML(makeTooltip(tooltipTitle,tooltipVars))
+          .addTo(myMap);
+
+        }
+      }
+
+      this.callBackFuncMLeave = () => {
+        if (hoveredStateId) {
+          myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
+        }
+        hoveredStateId =  null;
+        popup.remove();
+      }
 
     // When the user moves their mouse over the state-fill layer, we'll update the
     // feature state for the feature under the mouse.
-    myMap.on("mousemove", mainLayerId, function(e) {
-      if (e.features.length > 0) {
-        if (hoveredStateId) {
-            myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
-          }
-          hoveredStateId = e.features[0].id;
-          myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: true});
-
-          const placeName = e.features[0].properties[mapGeoPlaceName];
-          const placeCode = e.features[0].properties[mapGeoId];
-          const tooltipTitle = placeName + " [" + placeCode + "]";
-          const scatterDataPoint = scatterPlotData.filter(d => d.id === placeCode);
-          const tooltipVars = scatterDataPoint.length > 0 
-          ? [
-              {label:xValLabel.label, value:format(".2f")(scatterDataPoint[0][xVal])},
-              {label:"Amount Awarded", value:"£"+format(",.0f")(scatterDataPoint[0]['Amount Awarded'])}
-            ]
-          : [];
-
-          // Display a popup with the name of the location
-          popup.setLngLat(e.lngLat)
-            .setHTML(makeTooltip(tooltipTitle,tooltipVars))
-            .addTo(myMap);
-
-        }
-      });
+    myMap.on("mousemove", mainLayerId, this.callBackFuncMMove);
     
     // When the mouse leaves the state-fill layer, update the feature state of the
     // previously hovered feature.
-    myMap.on("mouseleave", mainLayerId, function() {
-      if (hoveredStateId) {
-        myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
-      }
-      hoveredStateId =  null;
-      popup.remove();
-    });
+    myMap.on("mouseleave", mainLayerId, this.callBackFuncMLeave);
+
   }
 
   buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit) {
@@ -109,8 +139,8 @@ class MapComponent extends Component {
     const xValues = scatterPlotData.map(d => +d[xVal]);
     const yValues = scatterPlotData.map(d => +d[yLabel]);
         
-    const colorScale = getColorScale(extent(xValues,this.props.y));
-    let [yMin, yMax] = getExtent(yValues,yMinLimit);
+    const colorScale = getColorScale(getExtent(xValues));
+    let [yMin, yMax] = getExtent(yValues,yMinLimit,true);
 
     let expression = ["match", ["get", mapGeoId]];
     console.log([yMin, yMax]);
@@ -129,10 +159,7 @@ class MapComponent extends Component {
     svg.selectAll("g").remove();
 
     svg.append("g")
-      .attr("class", "legendQuant")
-      // .attr("transform", "translate(20,20)");
-
-    console.log(colorScale);
+      .attr("class", "legendQuant");
 
     var legend = legendColor()
       .labelFormat(format(".3s"))
@@ -201,10 +228,11 @@ class MapComponent extends Component {
     console.log(this.map);
     
     if (nextProps.mapData !== this.props.mapData ||
+      nextProps.mapGeoId !== this.props.mapGeoId ||
       nextProps.scatterPlotData !== this.props.scatterPlotData ||
       nextProps.xVal !== this.props.xVal) 
     {
-      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName} = nextProps;
+      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName, addFilter} = nextProps;
       const { opacity } = this.state;
 
       const waiting = () => {
@@ -219,34 +247,25 @@ class MapComponent extends Component {
           this.addDataLayer(expression,mapData);
           this.setUpMouseOver(this.state.mainLayerId,mapData,mapGeoPlaceName,
             mapGeoId,this.popup,scatterPlotData,xVal,xValLabel);
+          // console.log("calling setuponlick from componentWillReceiveProps");
+          this.setUpOnClick(this.state.mainLayerId,mapGeoId,addFilter);
+
         }
       }
       waiting();
     } else console.log('Still loading data');
   }
   
-  // setFill() {
-  //   const { property, stops } = this.state.active;
-  //   this.myMap.setPaintProperty('countries', 'fill-color', {
-  //     property,
-  //     stops
-  //   });    
-  // }
 
   render() {
     const style  ={
       position: 'relative',
       // top: 0,
-      width: '400px',
-      height: '500px'
+      width: this.props.dimensions.width,
+      height: this.props.dimensions.width
     };
 
     
-    
-
-
-    // return <div className="MapComponent" style={style} ref={el => this.mapContainer = el} />;
-
     return <div className="MapComponent" >
       <div style={style} ref={el => this.mapContainer = el} className="absolute top right left bottom MapComponentMap">
       <div className='map-overlay top'>

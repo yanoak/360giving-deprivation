@@ -22,7 +22,7 @@ export const convertHex = (hex,opacity) => {
 }
 
 export const makeTooltip = (title,items) => {
-  let htmlBlock = "<div class='tootltip' style='font-size:12px; border: 1px solid #ccc; background-color: rgba(255,255,255,0.9); padding:5px; max-width:150px;'>"
+  let htmlBlock = "<div class='tootltip' style='font-size:12px; border: 1px solid #ccc; background-color: rgba(255,255,255,0.9); padding:5px; max-width:150px; z-index:2000'>"
   htmlBlock += title ? "<div style='font-size:20px'>" + title + "</div>" : '';
   if (items)
     items.forEach(i => {
@@ -45,9 +45,22 @@ export const getPowersOf10 = (minVal,maxVal) => {
   return returnVals;
 }
 
-export const getExtent = (yValues,yMinLimit) => {
+export const getExtent = (yValues,yMinLimit,allPos,paddingPercent) => {
   let [yMin,yMax] = extent(yValues);
-  yMin = yMin > 0 ? yMin : yMinLimit;
-  yMax = yMax > 0 ? yMax : yMin;
+  yMinLimit = yMinLimit ? yMinLimit : 1;
+  
+  const padding = paddingPercent ? (yMax-yMin)*paddingPercent : (yMax-yMin)*0.1
+  yMin = yMin-padding;
+  yMax = yMax+padding;
+  
+  if (yMinLimit) {
+    yMin = yMin > yMinLimit ? yMin : yMinLimit;
+    yMax = yMax > 0 ? yMax : yMin;
+  }
+  if (allPos) {
+    yMin = yMin > 0 ? yMin : 1;
+    yMax = yMax > 0 ? yMax : 1;
+  }
+  console.log([yMin,yMax]);
   return [yMin,yMax]
 } 

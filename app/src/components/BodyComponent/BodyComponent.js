@@ -74,31 +74,39 @@ class BodyComponent extends Component {
                 yMinLimit={this.props.yMinLimit}
                 mapGeoId={this.props.mapGeoId}
                 mapGeoPlaceName={this.props.mapGeoPlaceName}
+                dimensions={({width:600,height:600})}
+                addFilter={this.props.addFilter.bind(this)}
               />
             </Col>
-            <Col xs className='col center-col'> 
+            <Col xs className='col right-col'> 
               {/* Hello midtown */}
               <div className='scatterplotView'>
               <DeprivationScatterPlot
                 data={this.props.scatterPlotData}
-                // xVal='IMD_avg_score'
                 xVal={this.props.scatterPlotXVal}
                 xValLabel={this.props.scatterPlotXValLabel}
                 yMinLimit={this.props.yMinLimit}
-                dimensions={({width:400,height:400})}
+                dimensions={({width:600,height:600})}
                 addFilter={this.props.addFilter.bind(this)}
               />
             </div>
             </Col>
-            <Col xs className='col right-col'> 
-              {/* Hello downtown  */}
-              {this.props.smallMultiplesData.map(d => <div>
-                {d.key}<br/>
-                <DonorBarChart
-                  data = {d}
-                />
-              </div>)}
-            </Col>
+            </Row>
+            <Row>
+              <Col xs className='col smallMultiplePlotsContainer'>
+                <h3>Amounts awarded over time by individual granmakers in selected areas</h3>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs className='col smallMultiplePlotsContainer'> 
+                {/* Hello downtown  */}
+                {this.props.smallMultiplesData.map(d => <div className='smallMultiplePlot'>
+                  {d.key}<br/>
+                  <DonorBarChart
+                    data = {d}
+                  />
+                </div>)}
+              </Col>
           </Row>
         </Grid>
       </div>

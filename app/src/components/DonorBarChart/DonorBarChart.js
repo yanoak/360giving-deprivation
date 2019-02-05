@@ -29,8 +29,8 @@ class DonorBarChart extends Component {
 
     let tooltip = tip()
       .attr('class', 'd3-tip')
-      .offset([0, -20])
-      .direction(d => 'w')
+      .offset([0, 20])
+      .direction(d => 'e')
       .html((d) => {
         return makeTooltip(
           d.year,

@@ -1,12 +1,25 @@
 .BodyComponent{
   .center-col {
-    width: 700px
+    // width: 700px
   }
   .right-col {
     padding-left: 40px;
-    height: 500px;
+    // height: 500px;
     overflow-y: auto;
-    max-width: 300px;
+    // max-width: 300px;
+  }
+
+  .smallMultiplePlotsContainer {
+    display: flex;  
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .smallMultiplePlot {
+    display: inline-block;
+    width: 300px;
+    padding: 30px;
   }
 
   .filtersRow {
