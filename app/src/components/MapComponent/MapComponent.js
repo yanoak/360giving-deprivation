@@ -262,7 +262,7 @@ class MapComponent extends Component {
       position: 'relative',
       // top: 0,
       width: this.props.dimensions.width,
-      height: this.props.dimensions.width
+      height: this.props.dimensions.height
     };
 
     

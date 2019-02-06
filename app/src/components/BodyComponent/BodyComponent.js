@@ -20,21 +20,15 @@ class BodyComponent extends Component {
   state = {
     yearsRange: this.props.yearsRange ? this.props.yearsRange : [2013,2018]
   }
-
-  // componentWillReceiveProps(nextProps) {
-  //   console.log(nextProps);
-  //   if (nextProps.yearsRange) 
-  //   {
-  //     this.setState({
-  //       yearsRange: this.props.yearsRange
-  //     })  
-  //   } else console.log('Still loading data');
-  // }
     
 
   render() {
     console.log(this.props);
     console.log(this.props.yearsRange);
+
+    const mapAndScatterWidth = this.props.dimensions.width <= 800 
+      ? this.props.dimensions.width *0.8
+      : this.props.dimensions.width *0.45;
 
     return (
       <div className="BodyComponent">
@@ -74,7 +68,7 @@ class BodyComponent extends Component {
                 yMinLimit={this.props.yMinLimit}
                 mapGeoId={this.props.mapGeoId}
                 mapGeoPlaceName={this.props.mapGeoPlaceName}
-                dimensions={({width:600,height:600})}
+                dimensions={({width:mapAndScatterWidth,height:mapAndScatterWidth})}
                 addFilter={this.props.addFilter.bind(this)}
               />
             </Col>
@@ -86,7 +80,7 @@ class BodyComponent extends Component {
                 xVal={this.props.scatterPlotXVal}
                 xValLabel={this.props.scatterPlotXValLabel}
                 yMinLimit={this.props.yMinLimit}
-                dimensions={({width:600,height:600})}
+                dimensions={({width:mapAndScatterWidth,height:mapAndScatterWidth})}
                 addFilter={this.props.addFilter.bind(this)}
               />
             </div>
@@ -101,7 +95,7 @@ class BodyComponent extends Component {
               <Col xs className='col smallMultiplePlotsContainer'> 
                 {/* Hello downtown  */}
                 {this.props.smallMultiplesData.map(d => <div className='smallMultiplePlot'>
-                  {d.key}<br/>
+                  <div className='smallMultipleHeader'>{d.key}</div><br/>
                   <DonorBarChart
                     data = {d}
                   />

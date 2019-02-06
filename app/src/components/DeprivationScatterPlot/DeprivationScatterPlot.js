@@ -116,6 +116,8 @@ class DeprivationScatterPlot extends Component {
 
     node.selectAll("g").remove();
 
+    console.log([width,height]);
+
     // Clip Path for scatter plot points
     node.append("defs").append("clipPath")
         .attr("id", "clip")
@@ -226,7 +228,7 @@ class DeprivationScatterPlot extends Component {
       <div className="DonorBarChart">
         <button onClick={this.props.addFilter.bind(this,{'location': 'reset'})}>Clear Scatterplot Filters</button>
         <svg ref={node => this.node = node}
-          width={this.props.dimensions.width} height={this.props.dimensions.width}>
+          width={this.props.dimensions.width} height={this.props.dimensions.height}>
         </svg>
       </div>
       );

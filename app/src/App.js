@@ -14,18 +14,27 @@ import Select from 'react-select';
 
 class App extends Component {
 
-  state = {
-		data: [],
-		mutatedData: {
-			// companyPayments: []
-		},
-		layerControls: [],
-		selectedRegion: 'eng',
-    selectedGeoLevel: 'LAD',
-		selectedComparison: ['deprivation','comparison_IMD_avg_score'],
-		filters: {},
-		yMinLimit: 1000
-  }
+	constructor() {
+		super();
+		this.state = {
+			data: [],
+			mutatedData: {
+				// companyPayments: []
+			},
+			layerControls: [],
+			selectedRegion: 'eng',
+			selectedGeoLevel: 'LAD',
+			selectedComparison: ['deprivation','comparison_IMD_avg_score'],
+			filters: {},
+			yMinLimit: 1000,
+			dimensions: {
+				width: window.innerWidth,
+				height: window.innerHeight
+			}
+		}
+		this.updateDimensions = this.updateDimensions.bind(this);
+	}
+  
 	
 	addFilter = (filters,toggle) => {
 		console.log(filters)
@@ -63,8 +72,18 @@ class App extends Component {
 	}
 
   componentDidMount() { 
+		window.addEventListener("resize", this.updateDimensions);
 		this.getData();
 	}  
+	
+	updateDimensions() {
+    this.setState({
+      dimensions: {
+				height: window.innerHeight, 
+				width: window.innerWidth
+			}
+    });
+  }
 	
 	getData() {
     loadAllData()
@@ -221,6 +240,7 @@ class App extends Component {
 							mapFormatting={this.state.data.regions[this.state.selectedRegion]}
 							mapGeoId={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].id}
 							mapGeoPlaceName={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].placeName}
+							dimensions={this.state.dimensions}
 						/>
 						{/* <TempBodyComponent
 							smallMultiplesData={this.state.data.dataForSmallMultiples}
