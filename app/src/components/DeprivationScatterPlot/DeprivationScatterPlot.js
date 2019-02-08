@@ -37,20 +37,7 @@ class DeprivationScatterPlot extends Component {
 
       const opacity = 100;
 
-      let tooltip = tip()
-      .attr('class', 'd3-tip')
-      .offset([0, 20])
-      .direction(d => 'e')
-      .html((d) => {
-        // console.log(d);
-        return makeTooltip(
-          d.placeName + " [" + d.id + "]",
-          [
-            {label:this.props.xValLabel.label, value:format(".2f")(d[xVal])},
-            {label:"Amount Awarded", value:"£"+format(",.0f")(d[yVal])}
-          ]
-        )
-      })
+      
 
 
       console.log(this.props);
@@ -82,6 +69,32 @@ class DeprivationScatterPlot extends Component {
 
 
       const [yMin, yMax] = getExtent(yValues,this.props.yMinLimit,true);
+      const [xMin, xMax] = getExtent(xValues);
+
+      let tooltip = tip()
+        .attr('class', 'd3-tip')
+        .offset(d => {
+          if (d[xVal] > (xMax-xMin)/2)
+            return [0, -20];
+          else
+            return [0, 20];
+        })
+        .direction(d => {
+          if (d[xVal] > (xMax-xMin)/2)
+            return 'w';
+          else
+            return 'e';
+        })
+        .html((d) => {
+          // console.log(d);
+          return makeTooltip(
+            d.placeName + " [" + d.id + "]",
+            [
+              {label:this.props.xValLabel.label, value:format(".2f")(d[xVal])},
+              {label:"Amount Awarded", value:"£"+format(",.0f")(d[yVal])}
+            ]
+          )
+        })
 
       data = data.filter(d => {
         // console.log(this.props.yMinLimit,+d[yVal]);
@@ -94,24 +107,40 @@ class DeprivationScatterPlot extends Component {
       // set the ranges
       var x = scaleLinear()
                 .range([0, width])
-                .domain(getExtent(xValues))
+                .domain([xMin, xMax])
                 // .padding(0.1);
       var y = scaleLog()
                 .range([height, 0])
                 .domain([yMin,yMax])
           
-    const colorScale = getColorScale(getExtent(xValues));
+    const colorScale = getColorScale(extent(xValues));
 
     const zoomed = () => {
       // create new scale ojects based on event
       var new_xScale = event.transform.rescaleX(x);
       var new_yScale = event.transform.rescaleY(y);
+      var new_xScale_to_call = xAxis.scale(new_xScale);
+      var new_yScale_to_call = yAxis.scale(new_yScale);
       // update axes
-      gX.call(xAxis.scale(new_xScale));
-      gY.call(yAxis.scale(new_yScale));
+      gX.call(new_xScale_to_call);
+      gY.call(new_yScale_to_call);
       points.data(data.filter(d => +d[yVal]>=yMin))
         .attr('cx', function(d) {return new_xScale(d[xVal])})
         .attr('cy', function(d) {return new_yScale(d[yVal])});
+
+      const [xMin,xMax] = new_xScale_to_call.scale().range();
+      tooltip.offset(d => {
+          if (new_xScale(d[xVal]) > (xMax-xMin)/2)
+            return [0, -20];
+          else
+            return [0, 20];
+        })
+        .direction(d => {
+          if (new_xScale(d[xVal]) > (xMax-xMin)/2)
+            return 'w';
+          else
+            return 'e';
+        })
     }
 
     node.selectAll("g").remove();
@@ -216,8 +245,22 @@ class DeprivationScatterPlot extends Component {
     .attr("width", width)
     .attr("height", height)
     .call(yAxis);
-
     
+    node.append("g")
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 10)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Amount Awarded (£)"); 
+    
+    node.append("g")
+      .append("text")            
+      .attr("transform",
+            "translate(" + (margin.left + width/2) + " ," + (height + margin.bottom - 20) + ")")
+      .style("text-anchor", "middle")
+      .text(this.props.xValLabel.label);
 
     }
     
@@ -226,7 +269,6 @@ class DeprivationScatterPlot extends Component {
     render() {
         return (
       <div className="DonorBarChart">
-        <button onClick={this.props.addFilter.bind(this,{'location': 'reset'})}>Clear Scatterplot Filters</button>
         <svg ref={node => this.node = node}
           width={this.props.dimensions.width} height={this.props.dimensions.height}>
         </svg>

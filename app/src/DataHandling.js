@@ -7,7 +7,7 @@ import { capitalize } from './Utils';
 const grants_defult_dataset_name = 'LAD_ward_donor_year';
 
 export const prepAllData = (originalData, selectedRegion, 
-  selectedGeoLevel, selectedComparison, filters) => {
+  selectedGeoLevel, selectedComparison, filters,filterMin) => {
 
   console.log(originalData);
   console.log(selectedRegion, selectedGeoLevel, selectedComparison);
@@ -28,6 +28,7 @@ export const prepAllData = (originalData, selectedRegion,
     // d.filterOn = Math.random() > 0.5 ? true : false;
     d.filterOn = true;
     d.filterLocation = true;
+    d.filterDonor = true;
   })
   comparison[selectedRegion][selectedGeoLevel][selectedComparison[0]].data.forEach(d => {
     // d.filterOn = Math.random() > 0.5 ? true : false;
@@ -72,10 +73,10 @@ export const prepAllData = (originalData, selectedRegion,
   // prep filtered data for charts
   dataForMap = geo[selectedRegion][selectedGeoLevel].sourceName;
   dataForScatter = prepScatterData(originalData, selectedRegion, 
-    selectedGeoLevel, selectedComparison);
+    selectedGeoLevel, selectedComparison,'Amount Awarded',filterMin);
   dataForSmallMultiples = prepSmallMultiplesData(originalData, selectedRegion);
 
-  
+  console.log(dataForSmallMultiples);
 
   // return object with data prepared for each chart
   return {
@@ -89,7 +90,7 @@ export const prepAllData = (originalData, selectedRegion,
 }
 
 export const prepScatterData = (originalData, selectedRegion, 
-  selectedGeoLevel, selectedComparison) => {
+  selectedGeoLevel, selectedComparison,yVal,yMin) => {
 
   console.log(originalData);
 
@@ -100,13 +101,11 @@ export const prepScatterData = (originalData, selectedRegion,
       ({
         filterOn: values.some(x => x.filterOn === true) === true,
         filterLocation: values.some(x => x.filterLocation === true) === true,
+        filterDonor: values.some(x => x.filterDonor === true) === true,
         [originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]: sum(values, d => {
-          let returnVal = d.filterOn 
+          let returnVal = (d.filterOn && d.filterDonor)
             ? +d[originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]
             : 0;
-          // return d.filterOn 
-          //   ? +d[originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]
-          //   : 0;
           return returnVal;
         }) 
       })
@@ -121,10 +120,12 @@ export const prepScatterData = (originalData, selectedRegion,
     .entries(originalData.comparison[selectedRegion][selectedGeoLevel][selectedComparison[0]].data);
 
   // merge left hand side dataset and right hand side dataset
-  const mergedLeftRight = mergeById(scatterLeft,scatterRight,'key','key',
+  let mergedLeftRight = mergeById(scatterLeft,scatterRight,'key','key',
     [selectedComparison[1]],
     [originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]
   );
+
+  // mergedLeftRight = mergedLeftRight.filter(d => +d[yVal]>=yMin)
 
   // Get place names
   return mergedLeftRight.map(d => {
@@ -145,18 +146,29 @@ export const prepSmallMultiplesData = (originalData, selectedRegion) => {
   .rollup(function(leaves) { 
     return {
       "projects": sum(leaves, d => (d['filterOn'] && d['filterLocation']) ? d['Identifier'] : 0), 
-      "total_awarded": sum(leaves, d => (d['filterOn'] && d['filterLocation']) ? d['Amount Awarded'] : 0)
+      "total_awarded": sum(leaves, d => (d['filterOn'] && d['filterLocation']) ? d['Amount Awarded'] : 0),
+      "filterDonor": sum(leaves, d => (d['filterOn'] && d['filterLocation'] && d['filterDonor']) ? d['Identifier'] : 0)
     } 
   })
   .entries(data);
 
-  // console.log(nested_data);
-  return nested_data.filter(d => d.values.filter(y => y.value["total_awarded"]>0).length > 0);
+  // return nested_data.filter(d => d.values.filter(y => y.value["total_awarded"]>0).length > 0);
+  nested_data = nested_data.map(d => { 
+    d['filterDonor'] = d.values.filter(y => y.value["filterDonor"]>0).length > 0
+      ? true
+      : false;
+    d['notZero'] = d.values.filter(y => y.value["total_awarded"]>0).length > 0
+      ? true
+      : false;
+    return d;
+  })
+  return nested_data;
 }
 
 // Filterable dimensions:
 // - location
 // - time
+// - donor
 export const filterDiscrete = (filters,grant,comparison,
   selectedRegion,selectedGeoLevel,selectedComparison) => {
   const filterKeys = Object.keys(filters);
@@ -172,6 +184,12 @@ export const filterDiscrete = (filters,grant,comparison,
     const grantLocationKey = grant.id[selectedGeoLevel];
     grantData.forEach(d => {
       d.filterLocation = (filters['location'].includes(d[grantLocationKey])) ? true : false;
+    })
+  }
+
+  if (filterKeys.includes('donor') && filters['donor'] !== 'reset') {
+    grantData.forEach(d => {
+      d.filterDonor = (filters['donor'].includes(d['Funding Org:Name'])) ? true : false;
     })
   }
 
@@ -195,8 +213,8 @@ export const mergeById = (mainTable, lookupTable,
 
   const select = (mainItem, lookUpItem) => {
 
-    let mainKeep, mainValueLocation, lookUpValueLocation, lookUpKeep, filterOn, filterLocation;
-    mainKeep = mainValueLocation = lookUpValueLocation = lookUpKeep = filterOn = filterLocation = null;
+    let mainKeep, mainValueLocation, lookUpValueLocation, lookUpKeep, filterOn, filterLocation, filterDonor;
+    mainKeep = mainValueLocation = lookUpValueLocation = lookUpKeep = filterOn = filterLocation = filterDonor = null;
     
     if(mainItem) {
       mainValueLocation = mainItem.value ? mainItem.value : mainItem.values[0];
@@ -211,14 +229,17 @@ export const mergeById = (mainTable, lookupTable,
     if (mainItem && lookUpItem) {
       filterOn = mainValueLocation.filterOn && lookUpValueLocation.filterOn;
       filterLocation = mainValueLocation.filterLocation && lookUpValueLocation.filterLocation;
+      filterDonor = mainValueLocation.filterDonor && lookUpValueLocation.filterDonor;
     }
     else if (mainItem) {
       filterOn = mainValueLocation.filterOn;
       filterLocation = mainValueLocation.filterLocation;
+      filterDonor = mainValueLocation.filterDonor;
     }
     else if (lookUpItem) {
       filterOn = lookUpValueLocation.filterOn;
       filterLocation = lookUpValueLocation.filterLocation;
+      filterDonor = lookUpValueLocation.filterDonor;
     }
 
     return {
@@ -226,7 +247,8 @@ export const mergeById = (mainTable, lookupTable,
       ...mainKeep,
       ...lookUpKeep,
       filterOn: filterOn,
-      filterLocation: filterLocation
+      filterLocation: filterLocation,
+      filterDonor: filterDonor
     };
   }
 

@@ -1,5 +1,7 @@
 // import * as d3 from 'd3';
 import { csv, json } from 'd3-fetch';
+import sheetsy from 'sheetsy';
+
 
 // import geo_eng_LAD from './data/geo/geo_eng_LAD.json';
 // import geo_eng_ward from './data/geo/geo_eng_ward.json';
@@ -32,10 +34,12 @@ import _ from 'lodash';
 
 export const loadAllData = () => {
 
+  const { urlToKey, getWorkbook, getSheet } = sheetsy;
+
 
   const files = [
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_LAD.json'},
-    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/scaffold/app/src/data/geo/geo_eng_ward.json'},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/geo/geo_eng_LAD.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/geo/geo_eng_ward.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
       data: 'grants_eng_LAD_ward_donor_year',
@@ -52,6 +56,7 @@ export const loadAllData = () => {
     { name: 'comparison_eng_ward_charities', id: 'wd11cd', data: 'comparison_eng_ward_charities', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_charities.csv'},
     { name: 'comparison_eng_LAD_population', id: 'lad11cd', data: 'comparison_eng_LAD_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_population.csv'},
     { name: 'comparison_eng_ward_population', id: 'Ward Code 1', data: 'comparison_eng_ward_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_population.csv'},
+    { name: 'infoboxesGoogleSheet', filePath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/edit?usp=sharing'}
   ]
 
   const abbreviations = {
@@ -78,19 +83,26 @@ export const loadAllData = () => {
   }
 
 
+
   const promises = [];
 
   files.forEach((f) => {
-    // if (typeof(f.data) !== 'string') {
-    //   promises.push( f.data );
-    // }  else 
-    // if (f.data.slice(0,4) === 'geo_') {
-    //   promises.push( f.filePath );
-    // } else 
     if (f.filePath.slice(-4) === '.csv') {
       promises.push( csv(f.filePath) );
     } else if (f.filePath.slice(-5) === '.json') {
       promises.push( json(f.filePath) );
+    }
+
+    if (f.name === 'infoboxesGoogleSheet' ) {
+      console.log(f.name);
+      promises.push(
+        getWorkbook(urlToKey(f.filePath))
+        .then((workBook) => getSheet(
+            urlToKey(f.filePath),
+            workBook.sheets[0].id
+          )
+        )
+      )
     }
   });
 
@@ -144,6 +156,11 @@ export const loadAllData = () => {
             'id': files[i].id, 
             'data': values[i]
           };
+          break; 
+         }
+        
+        case 'infoboxesGoogleSheet': { 
+          result.infoBoxes = _.keyBy(values[i].rows.map(d=> ({id:d.id,content:d.content})), 'id');
           break; 
          }
          default: break;

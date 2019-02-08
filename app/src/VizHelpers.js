@@ -45,22 +45,21 @@ export const getPowersOf10 = (minVal,maxVal) => {
   return returnVals;
 }
 
-export const getExtent = (yValues,yMinLimit,allPos,paddingPercent) => {
-  let [yMin,yMax] = extent(yValues);
-  yMinLimit = yMinLimit ? yMinLimit : 1;
+export const getExtent = (values,minLimit,allPos,paddingPercent) => {
+  let [min,max] = extent(values);
   
-  const padding = paddingPercent ? (yMax-yMin)*paddingPercent : (yMax-yMin)*0.1
-  yMin = yMin-padding;
-  yMax = yMax+padding;
+  const padding = paddingPercent ? (max-min)*paddingPercent : (max-min)*0.1
+  min = min-padding;
+  max = max+padding;
   
-  if (yMinLimit) {
-    yMin = yMin > yMinLimit ? yMin : yMinLimit;
-    yMax = yMax > 0 ? yMax : yMin;
+  if (minLimit) {
+    min = min > minLimit ? min : minLimit;
+    max = max > 0 ? max : min;
   }
   if (allPos) {
-    yMin = yMin > 0 ? yMin : 1;
-    yMax = yMax > 0 ? yMax : 1;
+    min = min > 0 ? min : 1;
+    max = max > 0 ? max : 1;
   }
-  console.log([yMin,yMax]);
-  return [yMin,yMax]
+  console.log([min,max]);
+  return [min,max]
 } 

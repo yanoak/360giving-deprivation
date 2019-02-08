@@ -139,7 +139,7 @@ class MapComponent extends Component {
     const xValues = scatterPlotData.map(d => +d[xVal]);
     const yValues = scatterPlotData.map(d => +d[yLabel]);
         
-    const colorScale = getColorScale(getExtent(xValues));
+    const colorScale = getColorScale(extent(xValues));
     let [yMin, yMax] = getExtent(yValues,yMinLimit,true);
 
     let expression = ["match", ["get", mapGeoId]];

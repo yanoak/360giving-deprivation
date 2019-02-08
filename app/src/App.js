@@ -91,7 +91,8 @@ class App extends Component {
         this.state.selectedRegion,
         this.state.selectedGeoLevel,
 				this.state.selectedComparison,
-				this.state.filters))
+				this.state.filters,
+				this.state.yMinLimit))
 			.then(data =>
 				// set initial data
 				this.setState({ data },
@@ -118,7 +119,8 @@ class App extends Component {
 					selectedOption.value,
 					this.state.selectedGeoLevel,
 					this.state.selectedComparison,
-					{})
+					{},
+					this.state.yMinLimit)
 			});
 			console.log(`Location selected:`, selectedOption);
 		}
@@ -131,7 +133,8 @@ class App extends Component {
 					this.state.selectedRegion,
 					selectedOption.value,
 					this.state.selectedComparison,
-					{})
+					{},
+					this.state.yMinLimit)
 			});
 			console.log(`Geo level selected:`, selectedOption);
 		}
@@ -143,7 +146,8 @@ class App extends Component {
 					this.state.selectedRegion,
 					this.state.selectedGeoLevel,
 					selectedOption.value,
-					this.state.filters)
+					this.state.filters,
+					this.state.yMinLimit)
 			});
 			console.log(`Comparison var selected:`, selectedOption);
 		}
@@ -241,6 +245,7 @@ class App extends Component {
 							mapGeoId={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].id}
 							mapGeoPlaceName={this.state.data.geo[this.state.selectedRegion][this.state.selectedGeoLevel].placeName}
 							dimensions={this.state.dimensions}
+							infoBoxes={this.state.data.infoBoxes}
 						/>
 						{/* <TempBodyComponent
 							smallMultiplesData={this.state.data.dataForSmallMultiples}
