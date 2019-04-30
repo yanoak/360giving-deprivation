@@ -4,7 +4,7 @@ import {extent} from 'd3-array';
 import _ from 'lodash';
 
 export const getColorScale = (d) => {
-  console.log(d);
+  // console.log(d);
   return scaleQuantile()
     .domain(_.range(d[0], d[1], (d[1]-d[0])/10))
     // .domain([0,5,10,15,20,25,30,35,40])
@@ -34,7 +34,7 @@ export const makeTooltip = (title,items) => {
 }
 
 export const getPowersOf10 = (minVal,maxVal) => {
-  console.log(minVal,maxVal);
+  // console.log(minVal,maxVal);
   let currentPow = 0;
   let returnVals = [];
   while (Math.pow(10,currentPow) <= maxVal) {
@@ -60,6 +60,6 @@ export const getExtent = (values,minLimit,allPos,paddingPercent) => {
     min = min > 0 ? min : 1;
     max = max > 0 ? max : 1;
   }
-  console.log([min,max]);
+  // console.log([min,max]);
   return [min,max]
 } 

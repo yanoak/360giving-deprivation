@@ -19,7 +19,6 @@ const YearSlider = createSliderWithTooltip(Slider.Range);
 
 const Card = ({content}) => (
   <div className="card">
-    {console.log(content)}
     <div className="content">
       <ReactMarkdown source={content} />
     </div>
@@ -85,7 +84,7 @@ class BodyComponent extends Component {
   }
 
   filterDonors = (selectedDonors) => {
-    console.log(selectedDonors)
+    // console.log(selectedDonors)
     if (selectedDonors.length === this.state.donorsList.length)
       this.props.addFilter({'donor': 'reset' },false);
     else
@@ -105,8 +104,6 @@ class BodyComponent extends Component {
 
   render() {
     console.log(this.props);
-    console.log(this.props.yearsRange);
-    console.log(this.state);
 
     const mapAndScatterWidth = this.props.dimensions.width <= 800 
       ? this.props.dimensions.width *0.8
@@ -135,7 +132,6 @@ class BodyComponent extends Component {
             </Popup>
             {this.state.showSelectorLocations 
               ? <div className="multiSelector">
-                {console.log(this.state.locationsList.filter(d => d.filter))}
                 <MultiSelect
                   items={this.state.locationsList}
                   selectedItems={this.state.locationsList.filter(d => d.filter)}
@@ -223,7 +219,7 @@ class BodyComponent extends Component {
                 {/* Hello downtown  */}
                 {this.props.smallMultiplesData
                   .filter(d => d.filterDonor && d.notZero)
-                  .map(d => <div className='smallMultiplePlot'>
+                  .map((d,i) => <div className='smallMultiplePlot' key={'smallMultiPlePlot'+i}>
                   <div className='smallMultipleHeader'>{d.key}</div><br/>
                   <DonorBarChart
                     data = {d}

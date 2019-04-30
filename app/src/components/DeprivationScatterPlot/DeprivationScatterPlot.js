@@ -90,7 +90,7 @@ class DeprivationScatterPlot extends Component {
           return makeTooltip(
             d.placeName + " [" + d.id + "]",
             [
-              {label:this.props.xValLabel.label, value:format(".2f")(d[xVal])},
+              {label:this.props.xValLabel.label, value:format(",.2f")(d[xVal])},
               {label:"Amount Awarded", value:"£"+format(",.0f")(d[yVal])}
             ]
           )
@@ -185,10 +185,8 @@ class DeprivationScatterPlot extends Component {
       .attr("r", smallRadius)
       .attr("stroke", '#99999933')
       .attr("stroke-width", smallStroke)
-      .attr("cx", d => x(+d[xVal]))
-      .attr("cy", d => {
-        return y(+d[yVal]);
-      })
+      .attr("cx", d => x(+d[xVal]) )
+      .attr("cy", d => y(+d[yVal]) )
       .attr('fill', d => d['filterLocation'] ? convertHex(colorScale(+d[xVal]),opacity) : "rgba(0,0,0,0)")
       .on('mouseover', function(d) {
         tooltip.show(d,this);
@@ -207,7 +205,6 @@ class DeprivationScatterPlot extends Component {
           .attr("stroke-width", smallStroke);
       })
       .on('click', function(d) { 
-        console.log(this.props);
         tooltip.hide();
         filterFunc({'location': [d['id']] },true);
       });
