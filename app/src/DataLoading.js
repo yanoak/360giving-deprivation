@@ -38,8 +38,8 @@ export const loadAllData = () => {
 
 
   const files = [
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/geo/geo_eng_LAD.json'},
-    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/geo/geo_eng_ward.json'},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_LAD.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
       data: 'grants_eng_LAD_ward_donor_year',
@@ -48,15 +48,16 @@ export const loadAllData = () => {
         'ward': 'Recipient Ward Geographic Code'
       },
       dataField: 'Amount Awarded', 
-      filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/grants/grants_eng_LAD_ward_donor_year.csv'
+      filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/grants/grants_eng_LAD_ward_donor_year.csv'
     },
-    { name: 'comparison_eng_LAD_deprivation', id: 'LAD2013_CD', data: 'comparison_eng_LAD_deprivation', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_deprivation.csv'},
-    { name: 'comparison_eng_ward_deprivation', id: 'WD17CD', data: 'comparison_eng_ward_deprivation', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_deprivation.csv'},
-    { name: 'comparison_eng_LAD_charities', id: 'lad11cd', data: 'comparison_eng_LAD_charities', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_charities.csv'},
-    { name: 'comparison_eng_ward_charities', id: 'wd11cd', data: 'comparison_eng_ward_charities', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_charities.csv'},
-    { name: 'comparison_eng_LAD_population', id: 'lad11cd', data: 'comparison_eng_LAD_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_LAD_population.csv'},
-    { name: 'comparison_eng_ward_population', id: 'Ward Code 1', data: 'comparison_eng_ward_population', filePath: 'https://raw.githubusercontent.com/yanoak/360giving-deprivation/master/app/src/data/comparison/comparison_eng_ward_population.csv'},
-    { name: 'infoboxesGoogleSheet', filePath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/edit?usp=sharing'}
+    { name: 'comparison_eng_LAD_deprivation', id: 'LAD2013_CD', data: 'comparison_eng_LAD_deprivation', year: '2015', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_deprivation.csv'},
+    { name: 'comparison_eng_ward_deprivation', id: 'WD17CD', data: 'comparison_eng_ward_deprivation', year: '2015', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_ward_deprivation.csv'},
+    { name: 'comparison_eng_LAD_charities', id: 'lad11cd', data: 'comparison_eng_LAD_charities', year: '2018', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_charities.csv'},
+    { name: 'comparison_eng_ward_charities', id: 'WD17CD', data: 'comparison_eng_ward_charities', year: '2018', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_ward_charities.csv'},
+    { name: 'comparison_eng_LAD_population', id: 'lad11cd', data: 'comparison_eng_LAD_population', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_population.csv'},
+    { name: 'comparison_eng_ward_population', id: 'Ward Code 1', data: 'comparison_eng_ward_population', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_ward_population.csv'},
+    // { name: 'infoboxesGoogleSheet', filePath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/edit?usp=sharing'}
+    { name: 'infoboxesGoogleSheet', csvPath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/export?gid=0&format=csv', filePath: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCz2QeRc4QGYCU7pdnsT2G1bL8PpUK9cdadRpw_e5gAD0ys-lS1w_P3EQkTr2HL6CfwGatd_8P86G5/pubhtml'}
   ]
 
   const abbreviations = {
@@ -94,14 +95,17 @@ export const loadAllData = () => {
     }
 
     if (f.name === 'infoboxesGoogleSheet' ) {
-      console.log(f.name);
       promises.push(
-        getWorkbook(urlToKey(f.filePath))
-        .then((workBook) => getSheet(
-            urlToKey(f.filePath),
-            workBook.sheets[0].id
-          )
-        )
+        csv(f.csvPath)
+        // getWorkbook(urlToKey(f.filePath))
+        // getWorkbook(urlToKey(f.filePath))
+        // .then(workBook => {
+        //   console.log(workBook);
+        //   return getSheet(
+        //     urlToKey(f.filePath),
+        //     workBook.sheets[0].id
+        //   )
+        // })
       )
     }
   });
@@ -119,7 +123,7 @@ export const loadAllData = () => {
       allMapSources: []
     };
 
-    console.log(values);
+    // console.log(values);
 
     for (let i = 0; i < files.length; i++) {
        const [category, country, geoLevel, ...otherParts] = files[i].name.split('_');
@@ -133,6 +137,7 @@ export const loadAllData = () => {
              'sourceName': files[i].name,
              'id': files[i].id, 
              'placeName': files[i].placeName,
+             'year': files[i].year,
              'data': values[i],
              'filePath': files[i].filePath,
              'lookUp': _.keyBy(
@@ -141,6 +146,7 @@ export const loadAllData = () => {
                'key'
                )
             };
+            result.geoLevels[geoLevel].label = result.geoLevels[geoLevel].label + ' (' + files[i].year + ")"
            break; 
           }
         case 'grants': { 
@@ -154,13 +160,14 @@ export const loadAllData = () => {
         case 'comparison': { 
           result.comparison[country][geoLevel][datasetName] = {
             'id': files[i].id, 
+            'year': files[i].year,
             'data': values[i]
           };
           break; 
          }
         
         case 'infoboxesGoogleSheet': { 
-          result.infoBoxes = _.keyBy(values[i].rows.map(d=> ({id:d.id,content:d.content})), 'id');
+          result.infoBoxes = _.keyBy(values[i].map(d=> ({id:d.id,content:d.content})), 'id');
           break; 
          }
          default: break;

@@ -5,7 +5,6 @@ import { loadAllData } from './DataLoading';
 import { prepAllData } from './DataHandling';
 import FiltersComponent from './components/FiltersComponent/FiltersComponent';
 import BodyComponent from './components/BodyComponent/BodyComponent';
-import TempBodyComponent from './components/TempBodyComponent/TempBodyComponent';
 import _ from 'lodash';
 
 import { Grid, Row, Col } from 'react-flexbox-grid';
@@ -37,13 +36,13 @@ class App extends Component {
   
 	
 	addFilter = (filters,toggle) => {
-		console.log(filters)
+		// console.log(filters)
 		const filterKeys = Object.keys(filters);
 		let newFilterObj = this.state.filters;
 
 		filterKeys.forEach(k => {
-			console.log(newFilterObj[k]);
-			console.log(filters[k]);
+			// console.log(newFilterObj[k]);
+			// console.log(filters[k]);
 			if (!toggle || filters[k]==='reset' 
 			|| !newFilterObj[k] || newFilterObj[k]==='reset') {
 				newFilterObj[k] = filters[k];
@@ -51,10 +50,10 @@ class App extends Component {
 				let consolidatedFilters = [];
 				consolidatedFilters = consolidatedFilters
 					.concat(newFilterObj[k].filter(d => !(filters[k]).includes(d)));
-				console.log(consolidatedFilters);
+				// console.log(consolidatedFilters);
 				consolidatedFilters =	consolidatedFilters
 					.concat(filters[k].filter(d => !(newFilterObj[k]).includes(d)));
-				console.log(consolidatedFilters);
+				// console.log(consolidatedFilters);
 
 				newFilterObj[k] = consolidatedFilters;
 			}
@@ -193,7 +192,6 @@ class App extends Component {
 		const comparisonPicker = <div className='comparisonPickerWrapper'>
 		<label>
 			Comparison Variable: 
-			{console.log(this.state.data.comparisonVars)}
 				{!!isLoading
 				? 'loading'
 				:	<Select
@@ -247,11 +245,6 @@ class App extends Component {
 							dimensions={this.state.dimensions}
 							infoBoxes={this.state.data.infoBoxes}
 						/>
-						{/* <TempBodyComponent
-							smallMultiplesData={this.state.data.dataForSmallMultiples}
-							scatterPlotData={this.state.data.dataForScatter}
-							scatterPlotXVal={this.state.selectedComparison[1].slice(11)}
-						/> */}
 					</div>
 			}
       </div>

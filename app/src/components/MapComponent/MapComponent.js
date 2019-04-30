@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
+// import PropTypes from 'prop-types'
 import { getColorScale, convertHex, makeTooltip, getExtent } from '../../VizHelpers'
 import { format } from 'd3-format'
 import { legendColor } from 'd3-svg-legend'
@@ -80,13 +80,13 @@ class MapComponent extends Component {
     let hoveredStateId =  null;
 
     let myMap = this.map;
-    console.log(mapGeoId);
+    // console.log(mapGeoId);
     myMap.off("mousemove", mainLayerId, this.callBackFuncMMove);
     myMap.off("mouseleave", mainLayerId, this.callBackFuncMLeave);
 
 
     this.callBackFuncMMove = (e) =>  {
-      console.log(mapGeoId);
+      // console.log(mapGeoId);
 
       if (e.features.length > 0) {
         if (hoveredStateId) {
@@ -101,7 +101,7 @@ class MapComponent extends Component {
         const scatterDataPoint = scatterPlotData.filter(d => d.id === placeCode);
         const tooltipVars = scatterDataPoint.length > 0 
         ? [
-            {label:xValLabel.label, value:format(".2f")(scatterDataPoint[0][xVal])},
+            {label:xValLabel.label, value:format(",.2f")(scatterDataPoint[0][xVal])},
             {label:"Amount Awarded", value:"£"+format(",.0f")(scatterDataPoint[0]['Amount Awarded'])}
           ]
         : [];
@@ -143,7 +143,7 @@ class MapComponent extends Component {
     let [yMin, yMax] = getExtent(yValues,yMinLimit,true);
 
     let expression = ["match", ["get", mapGeoId]];
-    console.log([yMin, yMax]);
+    // console.log([yMin, yMax]);
 
     scatterPlotData.forEach(function(row) {
       // console.log(yMin,+row[yLabel],row["filterLocation"])
@@ -224,8 +224,6 @@ class MapComponent extends Component {
 
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
-    console.log(this.map);
     
     if (nextProps.mapData !== this.props.mapData ||
       nextProps.mapGeoId !== this.props.mapGeoId ||
@@ -239,7 +237,6 @@ class MapComponent extends Component {
         if (!this.map.isStyleLoaded() || !this.map.getLayer(this.state.mainLayerId)) {
           setTimeout(waiting, 200);
         } else {
-          console.log(this.map.getLayer(this.state.mainLayerId));
           this.removeDataLayer();
 
           const expression = this.buildDataLayer(mapData, scatterPlotData, 

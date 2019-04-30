@@ -17,7 +17,7 @@ export const prepAllData = (originalData, selectedRegion,
     comparisonVars,
     ...untouchedVars} = originalData;
 
-  console.log(untouchedVars);
+  // console.log(untouchedVars);
   const allComparisonTypes = Object.keys(comparison[selectedRegion][selectedGeoLevel]);
 
   // test
@@ -52,17 +52,19 @@ export const prepAllData = (originalData, selectedRegion,
     comparison[selectedRegion][selectedGeoLevel][selectedComparison[0]].data = comparisonFiltered;
   }
 
-  console.log(grant);
+  // console.log(grant);
 
   comparisonVars = allComparisonTypes
     .map(c => {
-      console.log(comparison[selectedRegion][selectedGeoLevel][c]);
-      return comparison[selectedRegion][selectedGeoLevel][c].data.columns
+      const dataset = comparison[selectedRegion][selectedGeoLevel][c];
+      // console.log(dataset);
+      return dataset.data.columns
         .filter(d => d.startsWith("comparison_"))
         .map(d => {
           return {
             value: [c, d], 
-            label: capitalize((c + ' - ' + d.slice(11)).split('_').join(' '))}
+            label: capitalize((c + ' - ' + d.slice(11)).split('_').join(' ')) + " (" + dataset.year + ")"
+          }
         });
     })
 
@@ -76,11 +78,12 @@ export const prepAllData = (originalData, selectedRegion,
     selectedGeoLevel, selectedComparison,'Amount Awarded',filterMin);
   dataForSmallMultiples = prepSmallMultiplesData(originalData, selectedRegion);
 
-  console.log(dataForSmallMultiples);
+  
+  // console.log(dataForSmallMultiples);
 
   // return object with data prepared for each chart
   return {
-    grant, comparison, geo, 
+    grant, comparison, geo,
     comparisonVars: comparisonVars,
     dataForMap: dataForMap, 
     dataForScatter: dataForScatter, 
@@ -92,32 +95,37 @@ export const prepAllData = (originalData, selectedRegion,
 export const prepScatterData = (originalData, selectedRegion, 
   selectedGeoLevel, selectedComparison,yVal,yMin) => {
 
-  console.log(originalData);
+  // console.log(originalData);
 
   // right hand side dataset (Y-Axis)
   const scatterRight = nest()
     .key(d => d[originalData.grant[selectedRegion][grants_defult_dataset_name].id[selectedGeoLevel]])
-    .rollup(values => 
-      ({
+    .rollup(values => {
+      const dataFieldName = originalData.grant[selectedRegion][grants_defult_dataset_name].dataField;
+      return ({
         filterOn: values.some(x => x.filterOn === true) === true,
         filterLocation: values.some(x => x.filterLocation === true) === true,
         filterDonor: values.some(x => x.filterDonor === true) === true,
-        [originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]: sum(values, d => {
+        [dataFieldName]: sum(values, d => {
           let returnVal = (d.filterOn && d.filterDonor)
-            ? +d[originalData.grant[selectedRegion][grants_defult_dataset_name].dataField]
+            ? +d[dataFieldName]
             : 0;
           return returnVal;
         }) 
       })
+    }
+      
     )
     .entries(originalData.grant[selectedRegion][grants_defult_dataset_name].data);
 
-  console.log(scatterRight);
+  // console.log(scatterLeft,scatterRight);
 
   // left hand side dataset (X-Axis) 
   const scatterLeft = nest()
     .key(d => d[originalData.comparison[selectedRegion][selectedGeoLevel][selectedComparison[0]].id])
     .entries(originalData.comparison[selectedRegion][selectedGeoLevel][selectedComparison[0]].data);
+
+
 
   // merge left hand side dataset and right hand side dataset
   let mergedLeftRight = mergeById(scatterLeft,scatterRight,'key','key',
@@ -126,9 +134,11 @@ export const prepScatterData = (originalData, selectedRegion,
   );
 
   // mergedLeftRight = mergedLeftRight.filter(d => +d[yVal]>=yMin)
+  // console.log(mergedLeftRight);
 
   // Get place names
   return mergedLeftRight.map(d => {
+    // console.log(d);
     const placeName = originalData.geo[selectedRegion][selectedGeoLevel].lookUp[d.id]
       ? originalData.geo[selectedRegion][selectedGeoLevel].lookUp[d.id].value
       : '';
@@ -177,8 +187,8 @@ export const filterDiscrete = (filters,grant,comparison,
   let grantData = grant.data;
   let comparisonData = comparison.data;
 
-  console.log(filterKeys,filters,grantData,comparisonData);
-  console.log("location" in filterKeys);
+  // console.log(filterKeys,filters,grantData,comparisonData);
+  // console.log("location" in filterKeys);
 
   if (filterKeys.includes('location') && filters['location'] !== 'reset') {
     const grantLocationKey = grant.id[selectedGeoLevel];
@@ -215,6 +225,7 @@ export const mergeById = (mainTable, lookupTable,
 
     let mainKeep, mainValueLocation, lookUpValueLocation, lookUpKeep, filterOn, filterLocation, filterDonor;
     mainKeep = mainValueLocation = lookUpValueLocation = lookUpKeep = filterOn = filterLocation = filterDonor = null;
+
     
     if(mainItem) {
       mainValueLocation = mainItem.value ? mainItem.value : mainItem.values[0];
@@ -225,6 +236,7 @@ export const mergeById = (mainTable, lookupTable,
       lookUpValueLocation = lookUpItem.value ? lookUpItem.value : lookUpItem.values[0];
       lookUpKeep = _.pick(lookUpValueLocation, keepVarsLookup);
     }
+
 
     if (mainItem && lookUpItem) {
       filterOn = mainValueLocation.filterOn && lookUpValueLocation.filterOn;
@@ -252,7 +264,7 @@ export const mergeById = (mainTable, lookupTable,
     };
   }
 
-  console.log(mainTable,lookupTable);
+  // console.log(mainTable,lookupTable);
 
   let l = lookupTable.length,
       m = mainTable.length,
@@ -268,6 +280,7 @@ export const mergeById = (mainTable, lookupTable,
     let x = lookupIndex[y[mainKey]]; // get corresponding row from lookupTable
     output.push(select(y, x)); // select only the columns you need
   }
+  // console.log(output);
   return output;
 
 }
