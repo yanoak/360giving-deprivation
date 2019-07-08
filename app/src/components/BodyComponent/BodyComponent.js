@@ -103,7 +103,7 @@ class BodyComponent extends Component {
   
 
   render() {
-    console.log(this.props);
+    // console.log(this.props);
 
     const mapAndScatterWidth = this.props.dimensions.width <= 800 
       ? this.props.dimensions.width *0.8

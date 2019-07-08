@@ -17,6 +17,7 @@ import sheetsy from 'sheetsy';
 
 
 import _ from 'lodash';
+import { DH_CHECK_P_NOT_SAFE_PRIME } from 'constants';
 
 // import geo_eng_LAD from './data/geo/geo_eng_LAD.json';
 // import geo_eng_ward from './data/geo/geo_eng_ward.json';
@@ -32,14 +33,20 @@ import _ from 'lodash';
 
 
 
-export const loadAllData = () => {
+export const loadAllData = (size,currentData) => {
+  console.log("Loading Data for size " + size);
 
   const { urlToKey, getWorkbook, getSheet } = sheetsy;
 
+  // { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_LAD_topo.json'},
+  // { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward_topo.json'},
+    
 
-  const files = [
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_LAD.json'},
-    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward.json'},
+  const filesSmall = [
+    // { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', type: 'geojson', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_LAD.json'},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', type: 'vector', sourceLayer: 'geo_eng_LAD', filePath: 'mapbox://yannaungoak.0ge46srg', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_LAD_lookup.json'},
+    // { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', type: 'geojson', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', type: 'vector', sourceLayer: 'geo_eng_ward', filePath: 'mapbox://yannaungoak.c4hq3m9h', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_ward_lookup.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
       data: 'grants_eng_LAD_ward_donor_year',
@@ -59,6 +66,12 @@ export const loadAllData = () => {
     // { name: 'infoboxesGoogleSheet', filePath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/edit?usp=sharing'}
     { name: 'infoboxesGoogleSheet', csvPath: 'https://docs.google.com/spreadsheets/d/1b94FIknCydzUCC1o5pceMGYgG2pjfowMTOfAbJs4l-Q/export?gid=0&format=csv', filePath: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQCz2QeRc4QGYCU7pdnsT2G1bL8PpUK9cdadRpw_e5gAD0ys-lS1w_P3EQkTr2HL6CfwGatd_8P86G5/pubhtml'}
   ]
+
+  // const filesLarge = [
+  //   { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward.json'},
+  // ]
+
+  const files = filesSmall;
 
   const abbreviations = {
     geoLevel: {
@@ -92,9 +105,7 @@ export const loadAllData = () => {
       promises.push( csv(f.filePath) );
     } else if (f.filePath.slice(-5) === '.json') {
       promises.push( json(f.filePath) );
-    }
-
-    if (f.name === 'infoboxesGoogleSheet' ) {
+    } else if (f.name === 'infoboxesGoogleSheet' ) {
       promises.push(
         csv(f.csvPath)
         // getWorkbook(urlToKey(f.filePath))
@@ -107,13 +118,17 @@ export const loadAllData = () => {
         //   )
         // })
       )
+    } else {
+      promises.push(json(f.lookupFilePath));
     }
+
+    
   });
 
 
   return Promise.all(promises).then(function(values) {
 
-    const result = {
+    let result = {
       geo: {eng: {LAD: {}, ward: {}}}, 
       comparison: {eng: {LAD: {}, ward: {}}},
       grant: {eng: {}}, 
@@ -123,7 +138,11 @@ export const loadAllData = () => {
       allMapSources: []
     };
 
-    // console.log(values);
+    if (currentData) result = currentData;
+
+
+    console.log(result);
+    console.log(values);
 
     for (let i = 0; i < files.length; i++) {
        const [category, country, geoLevel, ...otherParts] = files[i].name.split('_');
@@ -138,13 +157,20 @@ export const loadAllData = () => {
              'id': files[i].id, 
              'placeName': files[i].placeName,
              'year': files[i].year,
-             'data': values[i],
+             'type': files[i].type,
+             'data': files[i].type === 'geojson' ? values[i] : [],
+             'sourceLayer': files[i].type === 'geojson' ? '' : files[i].sourceLayer,
              'filePath': files[i].filePath,
-             'lookUp': _.keyBy(
-                values[i].features
-                  .map(f => ({'key': f.properties[files[i].id],'value': f.properties[files[i].placeName]}) ), 
-               'key'
-               )
+             'lookUp': files[i].type === 'geojson' 
+                ? _.keyBy(
+                    values[i].features
+                    // values[i].objects[files[i].name].geometries // this is for TopoJSON
+                      .map(f => {
+                        return({'key': f.properties[files[i].id],'value': f.properties[files[i].placeName]}) 
+                      }), 
+                  'key'
+                )
+                : values[i]
             };
             result.geoLevels[geoLevel].label = result.geoLevels[geoLevel].label + ' (' + files[i].year + ")"
            break; 

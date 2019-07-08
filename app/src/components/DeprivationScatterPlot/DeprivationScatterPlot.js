@@ -40,7 +40,7 @@ class DeprivationScatterPlot extends Component {
       
 
 
-      console.log(this.props);
+      // console.log(this.props);
       data = data.map(d => {
         return {
           'id': d['id'],
@@ -145,7 +145,7 @@ class DeprivationScatterPlot extends Component {
 
     node.selectAll("g").remove();
 
-    console.log([width,height]);
+    // console.log([width,height]);
 
     // Clip Path for scatter plot points
     node.append("defs").append("clipPath")
