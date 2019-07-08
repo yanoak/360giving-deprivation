@@ -7,6 +7,9 @@ import { select } from 'd3-selection'
 import mapboxgl from 'mapbox-gl'
 import './MapComponent.scss'
 import { extent } from 'd3-array'
+import _ from 'lodash'
+// import { topojson } from '@mapbox/leaflet-omnivore';
+// import { L } from 'leaflet';
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieWFubmF1bmdvYWsiLCJhIjoiY2prdWVzemFqMGZ6dzNzbnc0Z3N0enBiMiJ9.TFt7qYDiE1k5bBt7NdFCrQ';
@@ -17,6 +20,7 @@ class MapComponent extends Component {
     this.state = {
       opacity: 90,
       mainLayerId: 'admin-level-boundaries',
+      sources: [],
       geoId: ''
     }
   }
@@ -35,6 +39,8 @@ class MapComponent extends Component {
   componentDidMount() {
     const { opacity,mainLayerId } = this.state;
 
+    console.log("Running ComponentDidMount on Map")
+
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/mapbox/streets-v9',
@@ -50,8 +56,15 @@ class MapComponent extends Component {
       const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName,allMapSources,addFilter} = this.props;
       const expression = this.buildDataLayer(mapData, scatterPlotData, xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit);
       
-      allMapSources.forEach(d => this.addSource(d.sourceName,d.filePath));
-      this.addDataLayer(expression,mapData);
+      console.log(allMapSources);
+
+      console.log(this.props);
+
+      this.setState({
+        sources: []
+      })
+      allMapSources.forEach(d => this.addSource(d.sourceName,d.filePath,d.type,d.sourceLayer));
+      this.addDataLayer(expression,mapData,allMapSources);
       this.setUpMouseOver(mainLayerId,mapData,mapGeoPlaceName,mapGeoId,this.popup,
         scatterPlotData,xVal,xValLabel);
       console.log("calling setuponlick from componentDidMount");
@@ -86,14 +99,14 @@ class MapComponent extends Component {
 
 
     this.callBackFuncMMove = (e) =>  {
-      // console.log(mapGeoId);
 
       if (e.features.length > 0) {
         if (hoveredStateId) {
-          myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
+          myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: +hoveredStateId}, { hover: false});
         }
         hoveredStateId = e.features[0].id;
-        myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: true});
+        if (!hoveredStateId) hoveredStateId = e.features[0].properties.objectid;
+        myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: +hoveredStateId}, { hover: true});
 
         const placeName = e.features[0].properties[mapGeoPlaceName];
         const placeCode = e.features[0].properties[mapGeoId];
@@ -116,7 +129,7 @@ class MapComponent extends Component {
 
       this.callBackFuncMLeave = () => {
         if (hoveredStateId) {
-          myMap.setFeatureState({source: mapData, id: hoveredStateId}, { hover: false});
+          myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: hoveredStateId}, { hover: false});
         }
         hoveredStateId =  null;
         popup.remove();
@@ -174,16 +187,32 @@ class MapComponent extends Component {
     return expression;
   }
 
-  addSource(sourceName,filePath) {
-    this.map.addSource(sourceName, {
-      type: 'geojson',
-      data: filePath,
-      generateId: true
-    });
+  addSource(sourceName,filePath,type,sourceLayer) {
+    console.log(sourceName,filePath,type)
+    let metadata = {
+      type: type,
+    };
+    if (type === 'vector') {
+      metadata['url'] = filePath;
+      // metadata['source'] = {type: type, url: filePath}
+    } else {
+      metadata['data'] = filePath;
+      metadata['generateId'] = true;
+    }
+    console.log(metadata)
+
+    this.map.addSource(sourceName, metadata);
+
+
+    // topojson(filePath)
+    //   .addTo(this.map);
+
   }
 
-  addDataLayer(expression,sourceName) {
-    this.map.addLayer({
+  addDataLayer(expression,sourceName,mapSources) {
+    console.log(this.state.sources);
+    mapSources = mapSources.filter(d => d.sourceName === sourceName)[0];
+    let layerMetaDataForFill = {
       id: this.state.mainLayerId,
       type: 'fill',
       source: sourceName,
@@ -191,9 +220,18 @@ class MapComponent extends Component {
         "fill-color": expression,
         "fill-outline-color": "rgba(0,0,0,0.1)"
       }
-    }, 'place-city-sm');
+    }
+    if (mapSources.type === 'vector') {
+      layerMetaDataForFill["source-layer"] = mapSources.sourceLayer;
+      layerMetaDataForFill.source = {type: mapSources.type, url: mapSources.filePath}
+    }
+    this.map.addLayer(layerMetaDataForFill, 'place-city-sm');
+    this.setState({
+      sources: _.uniq([...this.state.sources, this.state.mainLayerId])
+    })
 
-    this.map.addLayer({
+
+    let layerMetaDataForHighlight = {
       id: (this.state.mainLayerId+'_highlight'),
       type: 'line',
       source: sourceName,
@@ -209,12 +247,34 @@ class MapComponent extends Component {
             0
           ]
         }
-      });
+      }
+    if (mapSources.type === 'vector') {
+      layerMetaDataForHighlight["source-layer"] = mapSources.sourceLayer;
+      layerMetaDataForHighlight.source = {type: mapSources.type, url: mapSources.filePath}
+    }
+    this.map.addLayer(layerMetaDataForHighlight);
+    this.setState({
+      sources: _.uniq([...this.state.sources, this.state.mainLayerId+'_highlight'])
+    })
+
+    console.log(this.map);
   }
 
   removeDataLayer() {
+    console.log(this.state.sources);
     this.map.removeLayer(this.state.mainLayerId);
     this.map.removeLayer(this.state.mainLayerId+'_highlight');
+    let removedSourcesIndex = []
+    this.state.sources.forEach((s,i) => {
+      if (this.map.style.sourceCaches[s]) {
+        this.map.removeSource(s)
+      } 
+      removedSourcesIndex.push(i)
+    });
+    console.log(removedSourcesIndex);
+    this.setState({
+      sources: _.uniq(this.state.sources)
+    })
   }
   
   
@@ -230,7 +290,9 @@ class MapComponent extends Component {
       nextProps.scatterPlotData !== this.props.scatterPlotData ||
       nextProps.xVal !== this.props.xVal) 
     {
-      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName, addFilter} = nextProps;
+      console.log("Map received new props")
+      // console.log(nextProps)
+      const {mapData, scatterPlotData, xVal, xValLabel, yMinLimit, mapGeoId, mapGeoPlaceName, addFilter, allMapSources} = nextProps;
       const { opacity } = this.state;
 
       const waiting = () => {
@@ -238,10 +300,12 @@ class MapComponent extends Component {
           setTimeout(waiting, 200);
         } else {
           this.removeDataLayer();
+          // allMapSources.forEach(d => this.addSource(d.sourceName,d.filePath,d.type,d.sourceLayer));
 
+          console.log(this.map);
           const expression = this.buildDataLayer(mapData, scatterPlotData, 
             xVal, mapGeoId, mapGeoPlaceName, opacity, yMinLimit);
-          this.addDataLayer(expression,mapData);
+          this.addDataLayer(expression,mapData,allMapSources);
           this.setUpMouseOver(this.state.mainLayerId,mapData,mapGeoPlaceName,
             mapGeoId,this.popup,scatterPlotData,xVal,xValLabel);
           // console.log("calling setuponlick from componentWillReceiveProps");

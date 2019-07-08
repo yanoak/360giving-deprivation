@@ -24,6 +24,7 @@ export const prepAllData = (originalData, selectedRegion,
   // filters = {'location': ['E09000028','E09000001'], 'years': [2013,2016]};
 
   console.log("filters: ",filters);
+  console.log(grant);
   grant[selectedRegion][grants_defult_dataset_name].data.forEach(d => {
     // d.filterOn = Math.random() > 0.5 ? true : false;
     d.filterOn = true;
@@ -95,7 +96,7 @@ export const prepAllData = (originalData, selectedRegion,
 export const prepScatterData = (originalData, selectedRegion, 
   selectedGeoLevel, selectedComparison,yVal,yMin) => {
 
-  // console.log(originalData);
+  console.log(originalData);
 
   // right hand side dataset (Y-Axis)
   const scatterRight = nest()

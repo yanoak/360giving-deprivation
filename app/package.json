@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@kenshooui/react-multi-select": "^1.0.70",
+    "@mapbox/leaflet-omnivore": "^0.3.4",
     "babel-loader": "8.0.4",
     "d3": "^5.7.0",
     "d3-dsv": "^1.0.10",
@@ -12,6 +13,9 @@
     "d3-svg-legend": "^2.25.6",
     "d3-tip": "^0.9.1",
     "gh-pages": "^2.0.1",
+    "handlebars": "^4.1.0",
+    "leaflet": "^1.4.0",
+    "leaflet-omnivore": "^0.3.4",
     "mapbox-gl": "^0.52.0",
     "node-sass": "^4.11.0",
     "rc-slider": "^8.6.4",

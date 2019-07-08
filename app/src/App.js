@@ -73,7 +73,18 @@ class App extends Component {
   componentDidMount() { 
 		window.addEventListener("resize", this.updateDimensions);
 		this.getData();
-	}  
+  }  
+  
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   console.log(nextState);
+  //   if (this.state.mutatedData === nextState.mutatedData) {
+  //     console.log("Component should not update")
+  //     return false;
+  //   } else {
+  //     console.log("Component should update")
+  //     return true;
+  //   }
+  // }
 	
 	updateDimensions() {
     this.setState({
@@ -84,31 +95,75 @@ class App extends Component {
     });
   }
 	
-	getData() {
-    loadAllData()
-      .then(data => prepAllData(data,
+  prepAndloadDataToState(data,initialCall) {
+    console.log(data);
+    this.setState({rawData: data})
+    return Promise.all([ 
+      prepAllData(data,
         this.state.selectedRegion,
         this.state.selectedGeoLevel,
-				this.state.selectedComparison,
-				this.state.filters,
-				this.state.yMinLimit))
-			.then(data =>
-				// set initial data
-				this.setState({ data },
-					() => {
-						// set mutated data to initial data on load so filters can access data changes
-						this.setState({ mutatedData: this.state.data },
-							() => {
-								console.log(`(mutatedData === data) : ${this.state.mutatedData === this.state.data}`)
-								console.log(this.state.mutatedData);
-							}
-						)}
-				))
-	}
+        this.state.selectedComparison,
+        this.state.filters,
+        this.state.yMinLimit
+      )
+    ])
+    .then(data => {
+      console.log(data[0])
+      const processedData = data[0]
+      // set initial data
+      this.setState({ data: data[0] },
+        () => {
+          if (initialCall) {
+            // set mutated data to initial data on load so filters can access data changes
+            this.setState({ 
+              mutatedData: this.state.data 
+            },
+              () => {
+                console.log(`(mutatedData === data) : ${this.state.mutatedData === this.state.data}`)
+                console.log(this.state.mutatedData);
+              }
+            )
+          }
+        }
+      )
+    return processedData;
+    })
+
+  }
+
+	getData() {
+    loadAllData()
+      .then(data => this.prepAndloadDataToState(data,true))
+      // .then(() => loadAllData("large",this.state.rawData))
+      // .then(data => this.prepAndloadDataToState(data,false))  
+
+
+      // .then(data => prepAllData(data,
+      //   this.state.selectedRegion,
+      //   this.state.selectedGeoLevel,
+      //   this.state.selectedComparison,
+      //   this.state.filters,
+      //   this.state.yMinLimit)
+      // )
+      // .then(data =>
+      //   // set initial data
+      //   this.setState({ data },
+      //     () => {
+      //       // set mutated data to initial data on load so filters can access data changes
+      //       this.setState({ mutatedData: this.state.data },
+      //         () => {
+      //           console.log(`(mutatedData === data) : ${this.state.mutatedData === this.state.data}`)
+      //           console.log(this.state.mutatedData);
+      //         }
+      //       )}
+      // ))
+      // .then()
+  }
+  
 
 
   render() {
-    console.log(this.state.data);
+    console.log(this.state);
 
 		const handleRegionChange = (selectedOption) => {
 			this.setState({ 
