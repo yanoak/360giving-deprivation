@@ -258,7 +258,7 @@ class MapComponent extends Component {
       // layerMetaDataForHighlight.source = {type: mapSources.type, url: mapSources.filePath}
     }
     console.log(layerMetaDataForHighlight);
-    this.map.addLayer(layerMetaDataForHighlight);
+    this.map.addLayer(layerMetaDataForHighlight, 'place-city-sm');
     this.setState({
       sources: _.uniq([...this.state.sources, this.state.mainLayerId+'_highlight'])
     })
