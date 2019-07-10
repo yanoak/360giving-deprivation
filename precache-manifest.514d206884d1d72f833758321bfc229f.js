@@ -8,15 +8,15 @@ self.__precacheManifest = [
     "url": "/360giving-deprivation/static/js/runtime~main.f3216256.js"
   },
   {
-    "revision": "d72e055680323ee9582a",
-    "url": "/360giving-deprivation/static/js/main.d72e0556.chunk.js"
+    "revision": "80d3e1a6b52ade127d87",
+    "url": "/360giving-deprivation/static/js/main.80d3e1a6.chunk.js"
   },
   {
     "revision": "709b0c4f694a6f3d6d46",
     "url": "/360giving-deprivation/static/js/1.709b0c4f.chunk.js"
   },
   {
-    "revision": "d72e055680323ee9582a",
+    "revision": "80d3e1a6b52ade127d87",
     "url": "/360giving-deprivation/static/css/main.34005520.chunk.css"
   },
   {
@@ -24,7 +24,7 @@ self.__precacheManifest = [
     "url": "/360giving-deprivation/static/css/1.441248c0.chunk.css"
   },
   {
-    "revision": "4863402ef073d4a6c4dcb0df33befacf",
+    "revision": "bebfc98af43c2cad44bf8fbcf330993d",
     "url": "/360giving-deprivation/index.html"
   }
 ];
