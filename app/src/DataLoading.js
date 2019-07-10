@@ -57,7 +57,7 @@ export const loadAllData = (size,currentData) => {
       dataField: 'Amount Awarded', 
       filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/grants/grants_eng_LAD_ward_donor_year.csv'
     },
-    { name: 'comparison_eng_LAD_deprivation', id: 'LAD2013_CD', data: 'comparison_eng_LAD_deprivation', year: '2015', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_deprivation.csv'},
+    { name: 'comparison_eng_LAD_deprivation', id: 'lad11cd', data: 'comparison_eng_LAD_deprivation', year: '2013', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_deprivation.csv'},
     { name: 'comparison_eng_ward_deprivation', id: 'WD17CD', data: 'comparison_eng_ward_deprivation', year: '2015', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_ward_deprivation.csv'},
     { name: 'comparison_eng_LAD_charities', id: 'lad11cd', data: 'comparison_eng_LAD_charities', year: '2018', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_LAD_charities.csv'},
     { name: 'comparison_eng_ward_charities', id: 'WD17CD', data: 'comparison_eng_ward_charities', year: '2018', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/comparison/comparison_eng_ward_charities.csv'},
@@ -205,6 +205,9 @@ export const loadAllData = (size,currentData) => {
       })
     });
 
+    console.log(result)
+    console.log(result.grant['eng']['LAD_ward_donor_year'].data.filter(d => d['Recipient District Geographic Code'] === 'E07000100'))
+    console.log(result.comparison['eng']['LAD']['deprivation'].data)
     return result;
   });
 

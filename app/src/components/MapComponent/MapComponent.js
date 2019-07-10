@@ -101,12 +101,15 @@ class MapComponent extends Component {
     this.callBackFuncMMove = (e) =>  {
 
       if (e.features.length > 0) {
+        // console.log(this.map)
+        // console.log(mapData)
         if (hoveredStateId) {
-          myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: +hoveredStateId}, { hover: false});
+          myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: hoveredStateId}, { hover: false});
         }
         hoveredStateId = e.features[0].id;
+        // console.log(e.features[0])
         if (!hoveredStateId) hoveredStateId = e.features[0].properties.objectid;
-        myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: +hoveredStateId}, { hover: true});
+        myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: hoveredStateId}, { hover: true});
 
         const placeName = e.features[0].properties[mapGeoPlaceName];
         const placeCode = e.features[0].properties[mapGeoId];
@@ -127,21 +130,21 @@ class MapComponent extends Component {
         }
       }
 
-      this.callBackFuncMLeave = () => {
-        if (hoveredStateId) {
-          myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: hoveredStateId}, { hover: false});
-        }
-        hoveredStateId =  null;
-        popup.remove();
+    this.callBackFuncMLeave = () => {
+      if (hoveredStateId) {
+        myMap.setFeatureState({source: mapData, sourceLayer:mapData, id: hoveredStateId}, { hover: false});
       }
+      hoveredStateId =  null;
+      popup.remove();
+    }
 
     // When the user moves their mouse over the state-fill layer, we'll update the
     // feature state for the feature under the mouse.
-    myMap.on("mousemove", mainLayerId, this.callBackFuncMMove);
+    myMap.on("mousemove", this.state.mainLayerId, this.callBackFuncMMove);
     
     // When the mouse leaves the state-fill layer, update the feature state of the
     // previously hovered feature.
-    myMap.on("mouseleave", mainLayerId, this.callBackFuncMLeave);
+    myMap.on("mouseleave", this.state.mainLayerId, this.callBackFuncMLeave);
 
   }
 
@@ -210,8 +213,9 @@ class MapComponent extends Component {
   }
 
   addDataLayer(expression,sourceName,mapSources) {
-    console.log(this.state.sources);
-    mapSources = mapSources.filter(d => d.sourceName === sourceName)[0];
+    const selectedMapSource = mapSources.filter(d => d.sourceName === sourceName)[0];
+    console.log(selectedMapSource);
+
     let layerMetaDataForFill = {
       id: this.state.mainLayerId,
       type: 'fill',
@@ -221,9 +225,9 @@ class MapComponent extends Component {
         "fill-outline-color": "rgba(0,0,0,0.1)"
       }
     }
-    if (mapSources.type === 'vector') {
-      layerMetaDataForFill["source-layer"] = mapSources.sourceLayer;
-      layerMetaDataForFill.source = {type: mapSources.type, url: mapSources.filePath}
+    if (selectedMapSource.type === 'vector') {
+      layerMetaDataForFill["source-layer"] = selectedMapSource.sourceLayer;
+      // layerMetaDataForFill.source = {type: mapSources.type, url: mapSources.filePath}
     }
     this.map.addLayer(layerMetaDataForFill, 'place-city-sm');
     this.setState({
@@ -239,6 +243,7 @@ class MapComponent extends Component {
         "line-color": ["case",
           ["boolean", ["feature-state", "hover"], false],
             "#f48320",
+            // "rgba(200,200,,1)",
             "rgba(0,0,0,0.1)"
           ],
           "line-width": ["case",
@@ -248,11 +253,12 @@ class MapComponent extends Component {
           ]
         }
       }
-    if (mapSources.type === 'vector') {
-      layerMetaDataForHighlight["source-layer"] = mapSources.sourceLayer;
-      layerMetaDataForHighlight.source = {type: mapSources.type, url: mapSources.filePath}
+    if (selectedMapSource.type === 'vector') {
+      layerMetaDataForHighlight["source-layer"] = selectedMapSource.sourceLayer;
+      // layerMetaDataForHighlight.source = {type: mapSources.type, url: mapSources.filePath}
     }
-    this.map.addLayer(layerMetaDataForHighlight);
+    console.log(layerMetaDataForHighlight);
+    this.map.addLayer(layerMetaDataForHighlight, 'place-city-sm');
     this.setState({
       sources: _.uniq([...this.state.sources, this.state.mainLayerId+'_highlight'])
     })
