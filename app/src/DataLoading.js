@@ -44,9 +44,9 @@ export const loadAllData = (size,currentData) => {
 
   const filesSmall = [
     // { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', type: 'geojson', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_LAD.json'},
-    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', type: 'vector', sourceLayer: 'geo_eng_LAD', filePath: 'mapbox://yannaungoak.0ge46srg', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_LAD_lookup.json'},
+    { name: 'geo_eng_LAD', id: 'LAD2011_CD', placeName: 'lad11nm', data: 'geo_eng_LAD', year: '2011', type: 'vector', sourceLayer: 'geo_eng_LAD', filePath: 'mapbox://360giving.2ryxjx4r', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_LAD_lookup.json'},
     // { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', type: 'geojson', filePath: 'https://s3.eu-west-2.amazonaws.com/360-giving-grants-map/data/geo/geo_eng_ward.json'},
-    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', type: 'vector', sourceLayer: 'geo_eng_ward', filePath: 'mapbox://yannaungoak.c4hq3m9h', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_ward_lookup.json'},
+    { name: 'geo_eng_ward', id: 'wd17cd', placeName: 'wd17nm', data: 'geo_eng_ward', year: '2017', type: 'vector', sourceLayer: 'geo_eng_ward', filePath: 'mapbox://360giving.85avmr2t', lookupFilePath: 'https://360-giving-grants-map.s3.eu-west-2.amazonaws.com/data/geo/geo_eng_ward_lookup.json'},
     {  
       name: 'grants_eng_LAD_ward_donor_year', 
       data: 'grants_eng_LAD_ward_donor_year',
