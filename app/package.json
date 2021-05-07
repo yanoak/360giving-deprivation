@@ -13,7 +13,7 @@
     "d3-svg-legend": "^2.25.6",
     "d3-tip": "^0.9.1",
     "gh-pages": "^2.0.1",
-    "handlebars": "^4.1.0",
+    "handlebars": "^4.7.7",
     "leaflet": "^1.4.0",
     "leaflet-omnivore": "^0.3.4",
     "mapbox-gl": "^0.52.0",
